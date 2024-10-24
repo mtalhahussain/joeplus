@@ -27,6 +27,11 @@ class RegisterRequest extends FormRequest
             'password' => 'required|string|min:6',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'phone' => 'nullable|string|max:15',
+            'google_id' => 'nullable',
+            'work_description' => 'nullable',
+            'you_want' => 'nullable',
+            'your_role' => 'nullable',
+            'bio' => 'nullable|max:255'
         ];
     }
 }

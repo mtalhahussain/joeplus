@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('google_id',191)->nullable();
+            $table->string('uuid',191);
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone',20)->nullable();
@@ -26,6 +27,10 @@ return new class extends Migration
             $table->string('you_want')->nullable();
             $table->string('your_role')->nullable();
             $table->boolean('is_active')->default(1);
+            $table->boolean('push_notification')->default(0);
+            $table->boolean('company_news')->default(0);
+            $table->boolean('news_letter')->default(0);
+            $table->boolean('meetup_near')->default(0);
             $table->rememberToken();
             $table->timestamps();
         });

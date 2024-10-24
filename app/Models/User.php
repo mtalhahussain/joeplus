@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable
 {
@@ -23,6 +24,7 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'roles',
+        'google_id'
     ];
 
     
@@ -30,6 +32,15 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($model){
+            $model->uuid = (string) Str::uuid();
+        });
+    }
 
     public function getAvatarUrlAttribute()
     {
