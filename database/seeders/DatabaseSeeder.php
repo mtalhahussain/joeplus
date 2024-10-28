@@ -15,9 +15,8 @@ class DatabaseSeeder extends Seeder
     {
        $this->call(RolerSeeder::class);
 
-        $admin = \App\Models\User::updateOrCreate([
+        $admin = \App\Models\User::updateOrCreate(['email' => 'admin@admin.com'],[
             'name' => 'Super Admin',
-            'email' => 'admin@admin.com',
             'password' => Hash::make('password'),
         ]);
 

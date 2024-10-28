@@ -24,7 +24,8 @@ class User extends Authenticatable
         'password',
         'remember_token',
         'roles',
-        'google_id'
+        'google_id',
+        'pivot'
     ];
 
     
@@ -67,13 +68,4 @@ class User extends Authenticatable
         return $this->hasMany(Project::class);
     }
 
-    public function comments()
-    {
-        return $this->hasMany(Comment::class);
-    }
-
-    public function attachments()
-    {
-        return $this->hasMany(Attachment::class);
-    }
 }

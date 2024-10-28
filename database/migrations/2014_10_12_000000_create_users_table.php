@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('google_id',191)->nullable();
-            $table->string('uuid',191);
             $table->string('name');
             $table->string('email')->unique();
             $table->string('phone',20)->nullable();

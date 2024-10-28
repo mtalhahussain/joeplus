@@ -23,7 +23,7 @@ class BoardController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|unique:boards,name,NULL,id,user_id,'.auth()->id(),
         ]);
 
         $inputs = $request->all();
@@ -44,15 +44,23 @@ class BoardController extends Controller
 
     public function update(Request $request, $id)
     {
-        $board = Board::find($id);
+        $request->validate([
+            'name' => 'required|unique:boards,name,'.$id.',id,user_id,'.auth()->id(),
+        ]);
+        $board = Board::where('uuid', $id)->first();
+        if(!$board) return $this->errorResponse([], 'Board not found', 422);
         $board->update($request->all());
-        return response()->json($board);
+        return $this->successResponse($board, 'Board updated successfully');
     }
 
     public function destroy($id)
     {
-        $board = Board::find($id);
+        $board = Board::where('uuid', $id)->first();
+        if(!$board) return $this->errorResponse([], 'Board not found', 422);
+        $hasTasks = $board->tasks()->get();
+        if(count($hasTasks) > 0) return $this->errorResponse([], 'Before deleting board, delete all tasks', 422);
         $board->delete();
-        return response()->json(['message' => 'Board deleted']);
+
+        return $this->successResponse([], 'Board deleted successfully');
     }
 }

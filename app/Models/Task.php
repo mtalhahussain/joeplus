@@ -52,6 +52,6 @@ class Task extends Model
 
     public function assignees()
     {
-        return $this->belongsToMany(User::class, 'task_user', 'task_id', 'user_id');
+        return $this->belongsToMany(User::class, 'task_assignees', 'task_id', 'user_id');
     }
 }
