@@ -11,15 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('projects', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
             $table->string('name');
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('owner_id');
-            if(Schema::hasTable('users')) $table->foreign('owner_id')->references('id')->on('users')->onDelete('cascade');
-            
-            $table->enum('visibility', ['public', 'invited', 'private'])->default('private');
+            $table->unsignedBigInteger('task_id');
+            $table->unsignedBigInteger('user_id');
+            if(Schema::hasTable('tasks')) $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
+
+            if(Schema::hasTable('users')) $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('projects');
+        Schema::dropIfExists('attachments');
     }
 };

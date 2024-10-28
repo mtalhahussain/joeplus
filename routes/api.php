@@ -4,7 +4,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\{
     AuthController,
-    UserController
+    UserController,
+    BoardController,
+    TaskController,
+    ProjectController,
 };
 
 /*
@@ -31,6 +34,10 @@ Route::group(['prefix' => 'v1'] , function(){
 
         Route::apiResources([
             'users' => UserController::class,
+            'boards' => BoardController::class,
+            'tasks' => TaskController::class,
+            'projects' => ProjectController::class,
+            
         ]);
 
     });
