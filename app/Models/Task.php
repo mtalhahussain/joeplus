@@ -42,7 +42,7 @@ class Task extends Model
 
     public function attachments()
     {
-        return $this->hasMany(Attachment::class);
+        return $this->hasMany(Attachment::class, 'task_id');
     }
 
     public function labels()

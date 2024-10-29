@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{TaskComment, TemporaryImage, Attachment};
+use App\Models\{Task, TaskComment, TemporaryImage, Attachment};
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use DOMDocument;
 
 class CommentController extends Controller
 {
@@ -22,36 +25,45 @@ class CommentController extends Controller
             'comment' => $request->comment,
         ]);
 
-        preg_match_all('/src="([^"]+)"/', $request->comment, $matches);
-        $imagePaths = $matches[1];
-
+        $dom = new DOMDocument();
+        libxml_use_internal_errors(true);
+        $dom->loadHTML($request->comment);
+        libxml_clear_errors();
+        $imagePaths = [];
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            $imagePaths[] = $img->getAttribute('src');
+        }
+      
         if(count($imagePaths) > 0){
 
             foreach ($imagePaths as $path) {
 
-                $adjusted = \Str::after($path, 'storage/');
+                $path = Str::replace("\\", '', $path);
+              
+                $adjusted = Str::after($path, 'storage/');
+                $adjusted = rtrim($adjusted, '"');
+                
                 $temporaryImage = TemporaryImage::where('file_path', $adjusted)
                                                 ->where('file_type', 'image')
                                                 ->where('user_id', auth()->id())
                                                 ->first();
-                $adjusted = \Str::after($path, 'storage/');
-
+                
                 if ($temporaryImage) {
-
+                  
                     $newPath = str_replace('temporary_images', 'comments', $temporaryImage->file_path);
-
+                  
                     Storage::disk('public')->move($temporaryImage->file_path, $newPath);
 
                     $new_comment = str_replace($temporaryImage->file_path, $newPath, $request->comment);
                     $attachment = new Attachment;
                     $attachment->comment_id = $comment->id;
+                    $attachment->task_id = $comment->task_id;
+                    $attachment->user_id = auth()->id();
                     $attachment->file_url = asset('storage/'.$newPath);
                     $attachment->file_name = $temporaryImage->file_name;
-                    $attachment->file_type = 'image';
                     $attachment->save();
 
                     $temporaryImage->delete();
-
                     TaskComment::find($comment->id)->update(['comment' => $new_comment]);
                 }
             }
@@ -65,6 +77,18 @@ class CommentController extends Controller
         }
 
         return $this->successResponse($comment,'Comment added successfully',201);
+    }
+
+    public function show(Request $request,$id)
+    {
+        $perPage = isset($request->per_page) ? (int) $request->per_page : 10;
+       
+        $task = Task::where('uuid', $id)->first();
+        if(!$task) return $this->errorResponse([],'Task not found',422);
+
+        $comments = TaskComment::where('task_id', $task->id)->with('user:id,name,avatar')->get();
+
+        return $this->successResponse($comments,'Comments fetched successfully',200);
     }
 
     public function update(Request $request, $id)
@@ -89,6 +113,11 @@ class CommentController extends Controller
         if(!$comment) return $this->errorResponse([],'Comment not found',422);
 
         $comment->delete();
+        $comment->attachments()->get()->each(function($attachment){
+            $actualPath = Str::after($attachment->file_url, 'storage/');
+            Storage::disk('public')->delete($actualPath);
+            $attachment->delete();
+        });
 
         return $this->successResponse([],'Comment deleted successfully',200);
     }

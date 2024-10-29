@@ -42,7 +42,7 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar'])->first();
+        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar', 'attachments'])->first();
         if(!$task) return $this->errorResponse([], 'Task not found', 422);
         return $this->successResponse($task, 'Task fetched successfully');
     }

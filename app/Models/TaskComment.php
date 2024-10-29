@@ -24,4 +24,14 @@ class TaskComment extends Model
     {
         return $this->belongsTo(Task::class);
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'comment_id');
+    }
 }
