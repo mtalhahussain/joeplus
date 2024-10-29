@@ -24,6 +24,7 @@ class BoardController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:boards,name,NULL,id,user_id,'.auth()->id(),
+            'project_id' => 'nullable',
         ]);
 
         $inputs = $request->all();
@@ -46,6 +47,7 @@ class BoardController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:boards,name,'.$id.',id,user_id,'.auth()->id(),
+            'project_id' => 'nullable',
         ]);
         $board = Board::where('uuid', $id)->first();
         if(!$board) return $this->errorResponse([], 'Board not found', 422);

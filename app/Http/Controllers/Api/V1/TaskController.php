@@ -42,8 +42,9 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::find($id);
-        return response()->json($task);
+        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar'])->first();
+        if(!$task) return $this->errorResponse([], 'Task not found', 422);
+        return $this->successResponse($task, 'Task fetched successfully');
     }
 
     public function update(Request $request, $id)

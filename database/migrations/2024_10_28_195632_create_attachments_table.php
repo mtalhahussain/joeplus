@@ -14,12 +14,16 @@ return new class extends Migration
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
             $table->uuid('uuid')->unique();
-            $table->string('name');
-            $table->unsignedBigInteger('task_id');
+            $table->string('file_name');
+            $table->string('file_url');
+            $table->unsignedBigInteger('task_id')->nullable();
+            $table->unsignedBigInteger('comment_id')->nullable();
             $table->unsignedBigInteger('user_id');
             if(Schema::hasTable('tasks')) $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
 
             if(Schema::hasTable('users')) $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
+
+            if(Schema::hasTable('task_comments')) $table->foreign('comment_id')->references('id')->on('task_comments')->onDelete('cascade');
             $table->timestamps();
         });
     }

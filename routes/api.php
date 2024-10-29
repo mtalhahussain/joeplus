@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\{
     BoardController,
     TaskController,
     ProjectController,
+    CommentController,
 };
 
 
@@ -21,13 +22,14 @@ Route::group(['prefix' => 'v1'] , function(){
 
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
+        Route::post('comment-attachment', [CommentController::class, 'attachmentUpload']);
 
         Route::apiResources([
             'users' => UserController::class,
             'boards' => BoardController::class,
             'tasks' => TaskController::class,
             'projects' => ProjectController::class,
-
+            'comments' => CommentController::class,
         ]);
 
     });
