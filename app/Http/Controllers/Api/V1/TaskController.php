@@ -59,8 +59,6 @@ class TaskController extends Controller
         $task->update($request->all());
         if(isset($request->assignees) && count($request->assignees) > 0){
             $task->assignees()->sync($request->assignees);
-        }else{
-            $task->assignees()->sync(auth()->id());
         }
         return $this->successResponse($task, 'Task updated successfully');
     }
@@ -69,6 +67,9 @@ class TaskController extends Controller
     {
         $task = Task::find($id);
         $task->delete();
+        $task->assignees()->detach();
+        $task->comments()->delete();
+        $task->attachments()->delete();
         return response()->json(['message' => 'Task deleted']);
     }
 }

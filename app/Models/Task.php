@@ -45,11 +45,6 @@ class Task extends Model
         return $this->hasMany(Attachment::class, 'task_id');
     }
 
-    public function labels()
-    {
-        return $this->belongsToMany(Label::class);
-    }
-
     public function assignees()
     {
         return $this->belongsToMany(User::class, 'task_assignees', 'task_id', 'user_id');

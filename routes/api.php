@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\V1\{
     TaskController,
     ProjectController,
     CommentController,
+    SubTaskConroller
 };
 
 
@@ -30,6 +31,7 @@ Route::group(['prefix' => 'v1'] , function(){
             'tasks' => TaskController::class,
             'projects' => ProjectController::class,
             'comments' => CommentController::class,
+            'sub-tasks' => SubTaskConroller::class,
         ]);
 
     });

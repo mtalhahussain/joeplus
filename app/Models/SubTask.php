@@ -29,4 +29,9 @@ class SubTask extends Model
     {
         return $this->belongsToMany(User::class, 'task_assignees', 'sub_task_id', 'user_id');
     }
+
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
+    }
 }
