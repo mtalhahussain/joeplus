@@ -19,6 +19,7 @@ return new class extends Migration
             $table->date('due_date')->nullable();
             $table->unsignedBigInteger('project_id')->nullable();
             $table->unsignedBigInteger('board_id');
+            $table->enum('status', ['on_track', 'at_risk', 'off_track', 'completed'])->default('on_track');
             if(Schema::hasTable('projects')) $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
             
             if(Schema::hasTable('boards')) $table->foreign('board_id')->references('id')->on('boards')->onDelete('cascade');

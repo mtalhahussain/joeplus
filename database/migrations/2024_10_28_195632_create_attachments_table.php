@@ -16,6 +16,7 @@ return new class extends Migration
             $table->uuid('uuid')->unique();
             $table->string('file_name');
             $table->string('file_url');
+            $table->unsignedBigInteger('sub_task_id')->nullable();
             $table->unsignedBigInteger('task_id')->nullable();
             $table->unsignedBigInteger('comment_id')->nullable();
             $table->unsignedBigInteger('user_id');

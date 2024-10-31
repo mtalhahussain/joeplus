@@ -11,15 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('task_assignees', function (Blueprint $table) {
+        Schema::create('sub_tasks', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
+            $table->string('title');
+            $table->text('description')->nullable();
             $table->unsignedBigInteger('task_id');
-            $table->unsignedBigInteger('sub_task_id');
-            $table->unsignedBigInteger('user_id');
-            $table->boolean('is_owner')->default(false);
+            $table->enum('status', ['on_track', 'at_risk', 'off_track', 'completed'])->default('on_track');
             if(Schema::hasTable('tasks')) $table->foreign('task_id')->references('id')->on('tasks')->onDelete('cascade');
-            if(Schema::hasTable('sub_tasks')) $table->foreign('sub_task_id')->references('id')->on('sub_tasks')->onDelete('cascade');
-            if(Schema::hasTable('users')) $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -29,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('task_assignees');
+        Schema::dropIfExists('sub_tasks');
     }
 };

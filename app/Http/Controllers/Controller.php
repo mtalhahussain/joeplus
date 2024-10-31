@@ -30,6 +30,7 @@ class Controller extends BaseController
         if(Storage::disk('public')->exists($path.'/'.$filename)) Storage::disk('public')->delete($path.'/'.$filename);
          
         Storage::disk('public')->putFileAs($path, $file, $filename);
+        
         return ['path' => $path.'/'.$filename , 'filename' => $filename];
     }
 
