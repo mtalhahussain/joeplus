@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    'allowed_origins' => ['https://app.demo-ontech.cc','app.demo-ontech.cc'],
 
     'allowed_origins_patterns' => [],
 
