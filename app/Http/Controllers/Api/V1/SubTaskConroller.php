@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{SubTask, Task};
+use Illuminate\Support\Facades\DB;
 
 class SubTaskConroller extends Controller
 {
@@ -23,11 +24,20 @@ class SubTaskConroller extends Controller
             'description' => 'nullable',
             'task_id' => 'required',
         ]);
-
+        DB::beginTransaction();
         $subTask = SubTask::create($request->all());
         if(isset($request->assignees) && count($request->assignees) > 0){
             $subTask->assignees()->attach($request->assignees);
         }
+        if($request->hasFile('attachments')){
+            $attachments = [];
+            foreach($request->file('attachments') as $attachment){
+                $path = $attachment->store('attachments', 'public');
+                $attachments[] = ['file_url' => $path, 'file_name' => $attachment->getClientOriginalName()];
+            }
+            $task->attachments()->createMany($attachments,['user_id' => auth()->id()]);
+        }
+        DB::commit();
         return $this->successResponse($subTask, 'SubTask created successfully');
     }
 
@@ -46,10 +56,20 @@ class SubTaskConroller extends Controller
         ]);
         $subTask = SubTask::where('uuid', $id)->first();
         if(!$subTask) return $this->errorResponse([], 'SubTask not found', 422);
+        DB::beginTransaction();
         $subTask->update($request->all());
         if(isset($request->assignees) && count($request->assignees) > 0){
             $subTask->assignees()->sync($request->assignees);
         }
+        if($request->hasFile('attachments')){
+            $attachments = [];
+            foreach($request->file('attachments') as $attachment){
+                $path = $attachment->store('attachments', 'public');
+                $attachments[] = ['file_url' => $path, 'file_name' => $attachment->getClientOriginalName()];
+            }
+            $task->attachments()->createMany($attachments,['user_id' => auth()->id()]);
+        }
+        DB::commit();
         return $this->successResponse($subTask, 'SubTask updated successfully');
     }
 

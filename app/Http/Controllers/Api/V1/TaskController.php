@@ -5,11 +5,13 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Task, Board};
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
     public function index(Request $request)
     {
+       
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $myTasks = [];
@@ -30,13 +32,21 @@ class TaskController extends Controller
             'description' => 'nullable',
             'board_id' => 'required',
         ]);
-
+        DB::beginTransaction();
         $task = Task::create($request->all());
         if(isset($request->assignees) && count($request->assignees) > 0){
             $task->assignees()->attach($request->assignees);
-        }else{
-            $task->assignees()->attach(auth()->id());
         }
+
+        if($request->hasFile('attachments')){
+            $attachments = [];
+            foreach($request->file('attachments') as $attachment){
+                $path = $attachment->store('attachments', 'public');
+                $attachments[] = ['file_url' => $path, 'file_name' => $attachment->getClientOriginalName()];
+            }
+            $task->attachments()->createMany($attachments,['user_id' => auth()->id()]);
+        }
+        DB::commit();
         return $this->successResponse($task, 'Task created successfully');
     }
 
