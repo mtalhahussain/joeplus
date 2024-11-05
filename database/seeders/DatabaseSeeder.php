@@ -35,6 +35,5 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $company->assignRole('company');
-    
     }
 }

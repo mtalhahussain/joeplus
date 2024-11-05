@@ -37,7 +37,7 @@ class Task extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'task_id');
     }
 
     public function attachments()
@@ -48,5 +48,10 @@ class Task extends Model
     public function assignees()
     {
         return $this->belongsToMany(User::class, 'task_assignees', 'task_id', 'user_id');
+    }
+
+    public function subTasks()
+    {
+        return $this->hasMany(SubTask::class);
     }
 }

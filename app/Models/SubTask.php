@@ -32,6 +32,11 @@ class SubTask extends Model
 
     public function comments()
     {
-        return $this->hasMany(Comment::class);
+        return $this->hasMany(Comment::class, 'sub_task_id');
+    }
+
+    public function attachments()
+    {
+        return $this->hasMany(Attachment::class, 'sub_task_id');
     }
 }

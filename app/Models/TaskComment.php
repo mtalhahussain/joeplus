@@ -22,7 +22,12 @@ class TaskComment extends Model
 
     public function task()
     {
-        return $this->belongsTo(Task::class);
+        return $this->belongsTo(Task::class, 'task_id');
+    }
+
+    public function subTask()
+    {
+        return $this->belongsTo(Task::class, 'sub_task_id');
     }
 
     public function user()

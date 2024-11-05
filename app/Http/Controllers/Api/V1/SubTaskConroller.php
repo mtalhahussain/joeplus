@@ -13,7 +13,10 @@ class SubTaskConroller extends Controller
     {
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
-        $subTasks = SubTask::with(['task:id,title', 'assignees:id,name,avatar'])->paginate($perPage);
+        $task_id = $inputs['task_id'] ?? null;
+        if($task_id) $subTasks = SubTask::where('task_id', $task_id)->with(['task:id,title', 'assignees:id,name,avatar','attachments'])->paginate($perPage);
+        else $subTasks = SubTask::with(['task:id,title', 'assignees:id,name,avatar'])->paginate($perPage);
+        
         return $this->successResponse($subTasks, 'SubTasks fetched successfully');
     }
 
@@ -32,10 +35,13 @@ class SubTaskConroller extends Controller
         if($request->hasFile('attachments')){
             $attachments = [];
             foreach($request->file('attachments') as $attachment){
-                $path = $attachment->store('attachments', 'public');
-                $attachments[] = ['file_url' => $path, 'file_name' => $attachment->getClientOriginalName()];
+                $attachments[] = [
+                    'file_name' => $this->uploadFile($attachment,'subtask-'.$subTask->id,'attachments')['filename'],
+                    'file_url' => $this->uploadFile($attachment,'subtask-'.$subTask->id,'attachments')['path'],
+                    'user_id' => auth()->id()
+                ];
             }
-            $task->attachments()->createMany($attachments,['user_id' => auth()->id()]);
+            $subTask->attachments()->createMany($attachments);
         }
         DB::commit();
         return $this->successResponse($subTask, 'SubTask created successfully');
@@ -64,10 +70,13 @@ class SubTaskConroller extends Controller
         if($request->hasFile('attachments')){
             $attachments = [];
             foreach($request->file('attachments') as $attachment){
-                $path = $attachment->store('attachments', 'public');
-                $attachments[] = ['file_url' => $path, 'file_name' => $attachment->getClientOriginalName()];
+                $attachments[] = [
+                    'file_name' => $this->uploadFile($attachment,'subtask-'.$subTask->id,'attachments')['filename'],
+                    'file_url' => $this->uploadFile($attachment,'subtask-'.$subTask->id,'attachments')['path'],
+                    'user_id' => auth()->id()
+                ];
             }
-            $task->attachments()->createMany($attachments,['user_id' => auth()->id()]);
+            $subTask->attachments()->createMany($attachments);
         }
         DB::commit();
         return $this->successResponse($subTask, 'SubTask updated successfully');
@@ -78,6 +87,9 @@ class SubTaskConroller extends Controller
         $subTask = SubTask::where('uuid', $id)->first();
         if(!$subTask) return $this->errorResponse([], 'SubTask not found', 422);
         $subTask->delete();
+        $subTask->assignees()->detach();
+        $subTask->attachments()->delete();
+        $subTask->comments()->delete();
         return $this->successResponse([], 'SubTask deleted successfully');
     }
 }

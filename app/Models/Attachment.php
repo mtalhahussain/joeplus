@@ -11,6 +11,8 @@ class Attachment extends Model
 
     protected $guarded = ['id','created_at','updated_at'];
 
+    protected $appends = ['original_url'];
+
     static function boot()
     {
         parent::boot();
@@ -19,6 +21,13 @@ class Attachment extends Model
             $model->uuid = (string) \Illuminate\Support\Str::uuid();
         });
     }
+
+    public function getOriginalUrlAttribute()
+    {
+        if(!$this->task_id && !$this->sub_task_id && !$this->comment_id) return 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y';
+        return asset('storage/'.$this->file_url);
+    }
+
 
     public function task()
     {

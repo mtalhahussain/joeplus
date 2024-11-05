@@ -24,6 +24,8 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
         Route::post('comment-attachment', [CommentController::class, 'attachmentUpload']);
+        // removeTaskAttachments
+        Route::delete('remove-attachments', [TaskController::class, 'removeTaskAttachments']);
 
         Route::apiResources([
             'users' => UserController::class,
