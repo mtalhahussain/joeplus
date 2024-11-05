@@ -26,6 +26,30 @@ class UserController extends Controller
         return $this->successResponse($users, 'Users fetched successfully');
     }
 
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|min:6',
+            
+        ]);
+
+        $inputs = $request->all();
+        $inputs['password'] = Hash::make($inputs['password']);
+
+        if($request->hasFile('avatar') && !empty($request->file('avatar'))) {
+            $inputs['avatar'] = $this->uploadFile($request->file('avatar'), null,'users')['filename'];
+        }
+        DB::beginTransaction();
+        $user = User::create($inputs);
+
+        $user->assignRole('guest');
+        DB::commit();
+
+        return $this->successResponse($user, 'User created successfully');
+    }
+
     public function show(Request $request, $id)
     {
         $user = User::find($id);
@@ -53,9 +77,9 @@ class UserController extends Controller
             $this->deleteFile('users/'.$user->id.'/'.$user->avatar);
             $inputs['avatar'] = $this->uploadFile($request->file('avatar'), $user->id,'users')['filename'];
         }
-
+        DB::beginTransaction();
         $user->update($inputs);
-
+        DB::commit();
         return $this->successResponse($user, 'User updated successfully');
     }
 
