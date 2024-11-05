@@ -9,7 +9,8 @@ use App\Http\Controllers\Api\V1\{
     TaskController,
     ProjectController,
     CommentController,
-    SubTaskConroller
+    SubTaskConroller,
+    CompanyController
 };
 
 
@@ -29,6 +30,7 @@ Route::group(['prefix' => 'v1'] , function(){
 
         Route::apiResources([
             'users' => UserController::class,
+            'company' => CompanyController::class,
             'boards' => BoardController::class,
             'tasks' => TaskController::class,
             'projects' => ProjectController::class,
