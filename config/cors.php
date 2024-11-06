@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://app.demo-ontech.cc','app.demo-ontech.cc', 'localhost:3000'],
+    'allowed_origins' => ['https://app.demo-ontech.cc','app.demo-ontech.cc', 'localhost:3000', 'http://localhost:3000'],
 
     'allowed_origins_patterns' => [],
 
