@@ -50,7 +50,7 @@ class User extends Authenticatable
 
     public function getRoleAttribute()
     {
-        return $this->roles->first()->name;
+        return !is_null($this->roles->first()) ? $this->roles->first()->name : null;
     }
 
     public function tasks()

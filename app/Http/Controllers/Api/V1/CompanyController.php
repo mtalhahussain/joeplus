@@ -18,7 +18,7 @@ class CompanyController extends Controller
 
         $userIds = auth()->user()->companyUsers()->pluck('user_id');
         if(count($userIds) == 0) return $this->errorResponse([],'No users found', 422);
-        $users = User::whereIn('id', $userIds)->paginate($perPage);
+        $users = User::select('id','name','email','avatar')->whereIn('id', $userIds)->latest()->paginate($perPage);
         
         return $this->successResponse($users, 'Users fetched successfully');
     }
@@ -33,17 +33,19 @@ class CompanyController extends Controller
         ]);
 
         $inputs = $request->all();
+       
         $inputs['password'] = Hash::make($inputs['password']);
 
         if($request->hasFile('avatar') && !empty($request->file('avatar'))) {
             $inputs['avatar'] = $this->uploadFile($request->file('avatar'), null,'users')['filename'];
         }
         DB::beginTransaction();
+        
         $user = User::create($inputs);
 
         $user->assignRole('guest');
 
-        $user->companyUsers()->attach(auth()->id());
+        auth()->user()->companyUsers()->attach(['user_id' => $user->id]);
 
         DB::commit();
 
