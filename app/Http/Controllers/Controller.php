@@ -26,9 +26,8 @@ class Controller extends BaseController
         if(!$location) $path = 'attachments/'. $type;
         else $path = $location . '/' . $type;
         $filename = time() .rand(112,2). '.' . $file->getClientOriginalExtension();
-       
-        if(Storage::disk('public')->exists($path.'/'.$filename)) Storage::disk('public')->delete($path.'/'.$filename);
-         
+        
+        if(Storage::disk('public')->exists($path) && \Str::contains($path, 'users')) Storage::disk('public')->deleteDirectory($path);
         Storage::disk('public')->putFileAs($path, $file, $filename);
         
         return ['path' => $path.'/'.$filename , 'filename' => $filename];
