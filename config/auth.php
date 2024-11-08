@@ -102,6 +102,13 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
+
+        'api' => [
+            'provider' => 'users',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
     ],
 
     /*
