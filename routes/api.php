@@ -16,6 +16,11 @@ use App\Http\Controllers\Api\V1\{
 
 Route::group(['prefix' => 'v1'] , function(){
 
+    Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+        return $request->user();
+    });
+    
+
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('verify-email', [AuthController::class, 'verifyCheckEmail']);
