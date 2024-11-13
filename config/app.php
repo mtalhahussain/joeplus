@@ -18,6 +18,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'otp' => [
+        'expiration' => env('OTP_EXPIRATION', 5),
+    ],
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

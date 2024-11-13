@@ -139,7 +139,7 @@ class AuthController extends Controller
         $otp = rand(100000, 999999);
 
         DB::table('otps')->insert([
-            'email' => $email,
+            'email' => $request->email,
             'code' => $otp,
             'created_at' => now(),
             'expires_at' => now()->addMinutes(config('app.otp.expiration')),
