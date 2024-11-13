@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\DB;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserRegistrationOtp;
 
 class AuthController extends Controller
 {
@@ -126,13 +128,33 @@ class AuthController extends Controller
     public function verifyCheckEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
+    
+        $emailExistsInUsers = User::where('email', $request->email)->exists();
+        $emailExistsInOtps = DB::table('otps')->where('email', $request->email)->exists();
+    
+        if ($emailExistsInUsers || $emailExistsInOtps) {
+            return $this->errorResponse([], 'Email already in use', 422);
+        }
 
-        $user = User::where('email', $request->email)->exists();
+        $otp = rand(100000, 999999);
 
-        if($user) return $this->errorResponse([],'User already exists', 422);
+        DB::table('otps')->insert([
+            'email' => $email,
+            'code' => $otp,
+            'created_at' => now(),
+            'expires_at' => now()->addMinutes(config('app.otp.expiration')),
+            'updated_at' => now(),
+        ]);
 
-        return $this->successResponse([], 'Registration can continue');
+        $logo = asset('images/logo.png');
+        $expirationTime = now()->addMinutes(config('app.otp.expiration'))->diffInMinutes();
+
+        // Mail::to($email)->later(now()->addSeconds(config('app.delay.otp')), new UserRegistrationOtp($otp, $logo, $expirationTime));
+        Mail::to($email)->send(new UserRegistrationOtp($otp, $logo, $expirationTime));
+    
+        return $this->successResponse([], 'Email verified successfully and OTP sent');
     }
+    
 
     public function logout(Request $request)
     {
@@ -144,4 +166,65 @@ class AuthController extends Controller
     {
         return $this->successResponse($request->user(), 'User fetched successfully');
     }
+
+    public function resetNewPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required|confirmed|min:8',
+        ]);
+
+        $email = Input::get('email');
+        $password = Input::get('password');
+        $passwordConfirmation = Input::get('password_confirmation');
+        $user = User::where('email', $email)->first();
+
+        if(!is_null($user)) {
+
+            $user->password = Hash::make($password);
+            $user->save();
+            return response()->json(['message' => 'Your password has been changed successfully'],200);
+        }
+    }
+
+    public function resendOtp(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+        $email = $request->email;
+        $otp = rand(100000, 999999);
+       
+        $hasRecord = DB::table('otps')->where('email', $email)->latest()->first();
+        if(!$hasRecord) return $this->errorResponse([],'Your email is not registered', 422);
+
+        DB::table('otps')->where('email', $email)->delete();
+        DB::table('otps')->insert([
+            'email' => $email,
+            'code' => $otp,
+            'created_at' => now(),
+            'expires_at' => now()->addMinutes(config('app.otp.expiration')),
+            'updated_at' => now(),
+        ]);
+
+        $logo = asset('images/logo.png');
+        $expirationTime = now()->addMinutes(config('app.otp.expiration'))->diffInMinutes();
+
+        Mail::to($email)->send(new UserRegistrationOtp($otp, $logo, $expirationTime));
+        return response()->json(['message' => 'OTP resent successfully'], 200);
+    }
+
+    public function verifyOtpCode(Request $request)
+    {
+        $request->validate(['email' => 'required' ,'otp' => 'required']);
+        
+        $otpRecord = DB::table('otps')->where('email', $request->email)->latest()->first();
+        
+        if(!$otpRecord) return $this->errorResponse([],'Otp not found', 422);
+        $checkExpiration = now()->diffInMinutes($otpRecord->created_at) <= 0 ? true : false;
+        if ($checkExpiration) return $this->errorResponse([],'Otp code is expired, Please resend', 422);
+        if (!$otpRecord || $otpRecord->code != $request->otp) return $this->errorResponse([],'Invalid otp code', 422);
+        DB::table('otps')->where('email', $request->email)->delete();
+        return $this->successResponse([], 'Otp verified successfully', 200);
+    }
+
+
 }

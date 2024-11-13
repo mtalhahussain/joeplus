@@ -31,7 +31,8 @@ class RegisterRequest extends FormRequest
             'work_description' => 'nullable',
             'you_want' => 'nullable',
             'your_role' => 'nullable',
-            'bio' => 'nullable|max:255'
+            'bio' => 'nullable|max:255',
+            'is_active' => 'nullable|boolean',
         ];
     }
 }
