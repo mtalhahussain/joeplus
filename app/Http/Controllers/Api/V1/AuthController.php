@@ -132,9 +132,7 @@ class AuthController extends Controller
         $emailExistsInUsers = User::where('email', $request->email)->exists();
         $emailExistsInOtps = DB::table('otps')->where('email', $request->email)->exists();
     
-        if ($emailExistsInUsers || $emailExistsInOtps) {
-            return $this->errorResponse([], 'Email already in use', 422);
-        }
+        if ($emailExistsInUsers)  return $this->errorResponse([], 'Email already in use', 422);
 
         $otp = rand(100000, 999999);
 
@@ -149,7 +147,6 @@ class AuthController extends Controller
         $logo = asset('images/logo.png');
         $expirationTime = now()->addMinutes(config('app.otp.expiration'))->diffInMinutes();
 
-        // Mail::to($email)->later(now()->addSeconds(config('app.delay.otp')), new UserRegistrationOtp($otp, $logo, $expirationTime));
         Mail::to($request->email)->send(new UserRegistrationOtp($otp, $logo, $expirationTime));
     
         return $this->successResponse([], 'Email verified successfully and OTP sent');
@@ -219,7 +216,7 @@ class AuthController extends Controller
         $otpRecord = DB::table('otps')->where('email', $request->email)->latest()->first();
         
         if(!$otpRecord) return $this->errorResponse([],'Otp not found', 422);
-        $checkExpiration = now()->diffInMinutes($otpRecord->created_at) <= 0 ? true : false;
+        $checkExpiration = now()->diffInMinutes($otpRecord->expires_at) <= 0 ? true : false;
         if ($checkExpiration) return $this->errorResponse([],'Otp code is expired, Please resend', 422);
         if (!$otpRecord || $otpRecord->code != $request->otp) return $this->errorResponse([],'Invalid otp code', 422);
         DB::table('otps')->where('email', $request->email)->delete();
