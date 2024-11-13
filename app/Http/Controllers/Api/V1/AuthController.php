@@ -150,7 +150,7 @@ class AuthController extends Controller
         $expirationTime = now()->addMinutes(config('app.otp.expiration'))->diffInMinutes();
 
         // Mail::to($email)->later(now()->addSeconds(config('app.delay.otp')), new UserRegistrationOtp($otp, $logo, $expirationTime));
-        Mail::to($email)->send(new UserRegistrationOtp($otp, $logo, $expirationTime));
+        Mail::to($request->email)->send(new UserRegistrationOtp($otp, $logo, $expirationTime));
     
         return $this->successResponse([], 'Email verified successfully and OTP sent');
     }
