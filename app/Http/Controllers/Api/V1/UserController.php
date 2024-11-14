@@ -87,12 +87,18 @@ class UserController extends Controller
 
     public function destroy(Request $request, $id)
     {
-        $user = User::find($id);
+        $user = User::where('uuid', $id)->first();
 
         if(!$user) return $this->errorResponse('User not found', 422);
 
         $this->deleteFile('users/'.$user->id.'/'.$user->avatar);
         $user->delete();
+        $user->tasks()->delete();
+        $user->boards()->delete();
+        $user->projects()->delete();
+        $user->projects()->tasks()->delete();
+        $user->projects()->boards()->delete();
+        $user->projects()->comments()->delete();
 
         return $this->successResponse([], 'User deleted successfully');
     }
