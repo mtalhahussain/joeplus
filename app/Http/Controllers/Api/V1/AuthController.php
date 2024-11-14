@@ -13,6 +13,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\UserRegistrationOtp;
+use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Password;
+use App\Notifications\ResetPasswordNotification;
 
 class AuthController extends Controller
 {
@@ -222,6 +225,42 @@ class AuthController extends Controller
         DB::table('otps')->where('email', $request->email)->delete();
         return $this->successResponse([], 'Otp verified successfully', 200);
     }
+    public function sendResetLink(Request $request)
+    {
+        $request->validate(['email' => 'required|email']);
+    
+        $user = User::where('email', $request->email)->first();
+    
+        if ($user) {
+            $token = Password::createToken($user);
 
+            $user->notify(new ResetPasswordNotification($token));
+            return $this->successResponse([], 'Reset password link sent successfully');
+        } else {
+            return $this->errorResponse([], 'Email not found', 422);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'token' => 'required',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $status = Password::reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($user, $password) {
+                $user->forceFill(['password' => Hash::make($password)])->save();
+            }
+        );
+
+        if ($status === Password::PASSWORD_RESET) {
+            return response()->json(['message' => __($status)], 200);
+        } else {
+            return response()->json(['message' => __($status)], 422);
+        }
+    }
 
 }

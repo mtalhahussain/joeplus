@@ -27,6 +27,10 @@ Route::group(['prefix' => 'v1'] , function(){
     Route::post('resend-otp', [AuthController::class, 'resendOtp']);
     Route::post('verify-otp', [AuthController::class, 'verifyOtpCode']);
 
+    Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
+    Route::post('reset-password', [AuthController::class, 'resetPassword']);
+
+
     Route::group(['middleware' => 'auth:sanctum'], function(){
 
         Route::post('logout', [AuthController::class, 'logout']);
