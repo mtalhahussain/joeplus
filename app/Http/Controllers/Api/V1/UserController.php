@@ -93,13 +93,13 @@ class UserController extends Controller
         DB::beginTransaction();
         $this->deleteFile('users/'.$user->id.'/'.$user->avatar);
         $user->delete();
-        $user->tasks()->delete();
-        $user->boards()->delete();
-        $user->projects()->delete();
-        $user->projects()->tasks()->delete();
-        $user->projects()->boards()->delete();
-        $user->projects()->comments()->delete();
-        $user->projects()->subTasks()->delete();
+        // $user->tasks()->delete();
+        // $user->boards()->delete();
+        // $user->projects()->delete();
+        // $user->projects()->tasks()->delete();
+        // $user->projects()->boards()->delete();
+        // $user->projects()->comments()->delete();
+        // $user->projects()->subTasks()->delete();
         DB::commit();
         return $this->successResponse([], 'User deleted successfully');
     }
