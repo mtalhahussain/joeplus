@@ -90,7 +90,7 @@ class UserController extends Controller
         $user = User::where('uuid', $id)->first();
 
         if(!$user) return $this->errorResponse('User not found', 422);
-
+        DB::beginTransaction();
         $this->deleteFile('users/'.$user->id.'/'.$user->avatar);
         $user->delete();
         $user->tasks()->delete();
@@ -99,7 +99,8 @@ class UserController extends Controller
         $user->projects()->tasks()->delete();
         $user->projects()->boards()->delete();
         $user->projects()->comments()->delete();
-
+        $user->projects()->subTasks()->delete();
+        DB::commit();
         return $this->successResponse([], 'User deleted successfully');
     }
     
