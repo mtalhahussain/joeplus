@@ -18,7 +18,14 @@ class CompanyController extends Controller
 
         $userIds = auth()->user()->companyUsers()->pluck('user_id');
         if(count($userIds) == 0) return $this->errorResponse([],'No users found', 422);
-        $users = User::select('id','uuid','name','email','avatar')->whereIn('id', $userIds)->latest()->paginate($perPage);
+        if(isset($inputs['pending'])){
+
+            $users = User::where('is_active',false)->whereIn('id', $userIds)->latest()->paginate($perPage); 
+
+        }else{
+
+            $users = User::whereIn('id', $userIds)->latest()->paginate($perPage);
+        }
         
         return $this->successResponse($users, 'Users fetched successfully');
     }
@@ -33,8 +40,8 @@ class CompanyController extends Controller
         ]);
 
         $inputs = $request->all();
-       
         $inputs['password'] = Hash::make($inputs['password']);
+        $inputs['is_active'] = false;
 
         DB::beginTransaction();
 
@@ -49,7 +56,6 @@ class CompanyController extends Controller
             $inputs['avatar'] = $this->uploadFile($request->file('avatar'), $user->id,'users')['filename'];
             $user->update(['avatar' => $inputs['avatar']]);
         }
-
         DB::commit();
 
         return $this->successResponse($user, 'User created successfully');
@@ -73,9 +79,13 @@ class CompanyController extends Controller
         $inputs = $request->all();  
         $user = User::where('uuid', $id)->first();
         if(!$user) return $this->errorResponse([], 'User not found', 422);
+        
         DB::beginTransaction();
+
         $user->update($inputs);
+
         if($request->hasFile('avatar') && !empty($request->file('avatar'))) {
+
             $inputs['avatar'] = $this->uploadFile($request->file('avatar'), $user->id,'users')['filename'];
             $user->update(['avatar' => $inputs['avatar']]);
         }
@@ -83,6 +93,7 @@ class CompanyController extends Controller
         if(isset($inputs['password'])) $user->update(['password' => Hash::make($inputs['password'])]);
         
         DB::commit();
+
         return $this->successResponse($user, 'User updated successfully');
     }
 
@@ -96,5 +107,5 @@ class CompanyController extends Controller
         DB::commit();
         return $this->successResponse([], 'User deleted successfully');
     }
-    
+
 }
