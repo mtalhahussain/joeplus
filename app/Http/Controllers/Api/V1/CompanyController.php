@@ -18,7 +18,7 @@ class CompanyController extends Controller
 
         $userIds = auth()->user()->companyUsers()->pluck('user_id');
         if(count($userIds) == 0) return $this->errorResponse([],'No users found', 422);
-        if(isset($inputs['pending'])){
+        if(isset($inputs['status']) && $inputs['status'] == 'pending'){
 
             $users = User::where('is_active',false)->whereIn('id', $userIds)->latest()->paginate($perPage); 
 
