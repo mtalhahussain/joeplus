@@ -24,7 +24,7 @@ class CompanyController extends Controller
 
         }else{
 
-            $users = User::whereIn('id', $userIds)->latest()->paginate($perPage);
+            $users = User::where('is_active',true)->whereIn('id', $userIds)->latest()->paginate($perPage);
         }
         
         return $this->successResponse($users, 'Users fetched successfully');
