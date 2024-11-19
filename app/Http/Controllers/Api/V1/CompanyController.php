@@ -73,8 +73,8 @@ class CompanyController extends Controller
     public function update(Request $request, $id)
     {
         $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users,email,'.$id.',uuid',
+            'name' => 'nullable',
+            'email' => 'nullable|email|unique:users,email,'.$id.',uuid',
         ]);
         $inputs = $request->all();  
         $user = User::where('uuid', $id)->first();
