@@ -87,7 +87,6 @@ class AuthController extends Controller
                 $userIsGoogle = User::where('google_id',$request->google_id)->first();
                 if(!$userIsGoogle) return $this->errorResponse([],'Invalid credentials, This email is not register by Google', 422);
                
-                // dd($userIsGoogle->email,$request->email);
                 if($userIsGoogle->email !== $request->email) return $this->errorResponse([],'Invalid credentials, This email is not register by Google', 422);
                 elseif(Auth::attempt(['email' => $request->email , 'password' => $request->email])) $user = Auth::user();
                 else return $this->errorResponse([],'Invalid credentials', 422);

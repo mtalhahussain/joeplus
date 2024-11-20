@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['https://app.demo-ontech.cc','app.demo-ontech.cc', 'http://localhost:3000', 'http://127.0.0.1:5500'],
+    'allowed_origins' => ['https://joepulse.vercel.app','https://joepulse-ontechs-projects.vercel.app','https://app.demo-ontech.cc','app.demo-ontech.cc', 'http://localhost:3000', 'http://127.0.0.1:5500'],
 
     'allowed_origins_patterns' => [],
 
