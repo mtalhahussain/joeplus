@@ -25,14 +25,14 @@ class AuthController extends Controller
         
         if($request->has('google_id')){
           
-            $is_user = User::where('google_id',$inputs['google_id'])->exists();
+            $is_user = User::where('email',$inputs['email'])->exists();
 
            if(!$is_user){
 
                 $inputs['password'] = Hash::make($inputs['email']);
 
                 DB::beginTransaction();
-                    $user = User::updateOrCreate(['google_id' => $inputs['google_id'],],$inputs);
+                    $user = User::updateOrCreate(['google_id' => $inputs['google_id']],$inputs);
                     if ($this->isCommonEmailProvider($user->email)) $user->assignRole('guest');
                     else $user->assignRole('company');
                 DB::commit();
