@@ -18,8 +18,8 @@ class UserController extends Controller
         $perPage = $request->has('per_page') ? $inputs['per_page'] : 10;
         $active = isset($request->status) ?  (int) $request->status : true;
 
-        if(isset($inputs['role'])) $users = User::whereNot(auth()->id())->where('is_active',$active)->role($inputs['role'])->paginate($perPage);
-        else $users = User::whereNot(auth()->id())->where('is_active',$active)->paginate($perPage);
+        if(isset($inputs['role'])) $users = User::whereNot('id',auth()->id())->where('is_active',$active)->role($inputs['role'])->paginate($perPage);
+        else $users = User::whereNot('id',auth()->id())->where('is_active',$active)->paginate($perPage);
         
         if(count($users) == 0) return $this->errorResponse('No users found', 422);
         
