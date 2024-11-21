@@ -68,7 +68,7 @@ class AuthController extends Controller
 
         if ($request->filled('google_id')) {
 
-            $is_user = User::where('google_id',$request->google_id)->first();
+            $is_user = User::where('email',$request->email)->first();
 
             if(!$is_user){
                 $inputs['name'] = Str::before($request->email, '@');
@@ -95,7 +95,7 @@ class AuthController extends Controller
             
             $token = $user->createToken('auth-token')->plainTextToken;
            
-            if ($user && $user->status === 0) return $this->errorResponse([],'Your account is blocked by Admin. Please contact support.', 422);
+            if ($user && $user->status === 0) return $this->errorResponse([],'Your account is inactive by Admin. Please contact support.', 422);
 
             return $this->successResponse(['token' => $token, 'user' => $user], 'User logged in successfully');
 
