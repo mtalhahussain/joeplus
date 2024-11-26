@@ -39,6 +39,7 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::delete('remove-attachments', [TaskController::class, 'removeTaskAttachments']);
         Route::get('board-tasks/{board_id}', [TaskController::class, 'getBoardTasks']);
         Route::get('project-tasks/{project_id}', [TaskController::class, 'getProjectTasks']);
+        Route::post('position-update', [BoardController::class, 'boardPositionUpdate']);
 
         Route::apiResources([
             'users' => UserController::class,

@@ -15,12 +15,12 @@ class TaskController extends Controller
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $myTasks = [];
-        $borards = Board::where('user_id', auth()->id())->whereNull('project_id')->pluck('id', 'name');
+        $borards = Board::select('id','name','position')->where('user_id', auth()->id())->orderBy('position')->whereNull('project_id')->get();
         if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
-        foreach($borards as $key => $value){
-            
-            $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('board_id', $value)->latest()->take(10)->get();
-            $myTasks[] = ['id' => $value, 'name' => $key, 'tasks' => $tasks];
+        foreach($borards as $key => $board){
+           
+            $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
+            $myTasks[] = ['id' => $board->id, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
     }
@@ -142,15 +142,15 @@ class TaskController extends Controller
         $project = Project::where('uuid', $project_id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
-        $borards = Board::where('user_id', auth()->id())->where('project_id',$project->id)->pluck('id', 'name');
+        $borards = Board::select('id', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
         if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
 
         $myTasks = [];
 
-        foreach($borards as $key => $value){
+        foreach($borards as $key => $board){
             
-            $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $value)->latest()->take(10)->get();
-            $myTasks[] = ['id' => $value, 'name' => $key, 'tasks' => $tasks];
+            $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $board->id)->latest()->take(10)->get();
+            $myTasks[] = ['id' => $board->id, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
     }

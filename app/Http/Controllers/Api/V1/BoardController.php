@@ -13,7 +13,7 @@ class BoardController extends Controller
         $inputs  = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
 
-        $boards = Board::where('user_id', auth()->id())->paginate($perPage);
+        $boards = Board::where('user_id', auth()->id())->orderBy('position')->paginate($perPage);
 
         if(count($boards) == 0) return $this->errorResponse([], 'No boards found', 422);
 
@@ -64,5 +64,21 @@ class BoardController extends Controller
         $board->delete();
 
         return $this->successResponse([], 'Board deleted successfully');
+    }
+
+    public function boardPositionUpdate(Request $request)
+    {
+        $request->validate([
+            'positions' => 'required',
+        ]);
+
+        $positions = $request->positions;
+
+        foreach ($positions as $id => $position) {
+            Board::find($id)->update(['position' => $position]);
+        }
+
+        return $this->successResponse([], 'Position updated successfully');
+
     }
 }
