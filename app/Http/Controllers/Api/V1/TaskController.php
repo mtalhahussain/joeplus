@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Task, Board, Attachment};
+use App\Models\{Task, Board, Attachment, Project};
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
@@ -16,7 +16,7 @@ class TaskController extends Controller
         $perPage = $inputs['per_page'] ?? 10;
         $myTasks = [];
         $borards = Board::where('user_id', auth()->id())->whereNull('project_id')->pluck('id', 'name');
-        if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
+        if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 422);
         foreach($borards as $key => $value){
             
             $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('board_id', $value)->latest()->take(10)->get();
@@ -133,6 +133,25 @@ class TaskController extends Controller
         $attachment->delete();
         $this->deleteFile($attachment->file_url);
         return $this->successResponse([], 'Attachment removed successfully');
-        
+    }
+
+    public function getProjectTasks(Request $request, $project_id)
+    {
+       
+        $perPage = $request->per_page ?? 10;
+        $project = Project::where('uuid', $project_id)->first();
+        if(!$project) return $this->errorResponse([], 'Project not found', 422);
+
+        $borards = Board::where('user_id', auth()->id())->where('project_id',$project->id)->pluck('id', 'name');
+        if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 422);
+
+        $myTasks = [];
+
+        foreach($borards as $key => $value){
+            
+            $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $value)->latest()->take(10)->get();
+            $myTasks[] = ['id' => $value, 'name' => $key, 'tasks' => $tasks];
+        }
+        return $this->successResponse($myTasks, 'Tasks fetched successfully');
     }
 }
