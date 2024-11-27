@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Board};
+use Illuminate\Validation\Rule;
 
 class BoardController extends Controller
 {
@@ -23,16 +24,24 @@ class BoardController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|unique:boards,name,NULL,id,user_id,'.auth()->id(),
+            'name' => [
+                'required',
+                Rule::unique('boards')->where(function ($query) use ($request) {
+                    $query->where('user_id', auth()->id());
+                    if(!empty($request->project_id)) $query->where('project_id', $request->project_id);
+                    return $query;
+                }),
+            ],
             'project_id' => 'nullable',
         ]);
-
+    
         $inputs = $request->all();
         $inputs['user_id'] = auth()->id();
-
+    
         $board = Board::create($inputs);
         return $this->successResponse($board, 'Board created successfully');
     }
+    
 
     public function show($id)
     {
