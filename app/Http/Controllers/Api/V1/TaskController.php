@@ -20,7 +20,7 @@ class TaskController extends Controller
         foreach($borards as $key => $board){
            
             $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
-            $myTasks[] = ['id' => $board->id, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
+            $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
     }
@@ -150,7 +150,7 @@ class TaskController extends Controller
         foreach($borards as $key => $board){
             
             $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $board->id)->latest()->take(10)->get();
-            $myTasks[] = ['id' => $board->id, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
+            $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
     }
