@@ -15,7 +15,7 @@ class TaskController extends Controller
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $myTasks = [];
-        $borards = Board::select('id','name','position')->where('user_id', auth()->id())->orderBy('position')->whereNull('project_id')->get();
+        $borards = Board::select('id','uuid','name','position')->where('user_id', auth()->id())->orderBy('position')->whereNull('project_id')->get();
         if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
         foreach($borards as $key => $board){
            
@@ -142,7 +142,7 @@ class TaskController extends Controller
         $project = Project::where('uuid', $project_id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
-        $borards = Board::select('id', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
+        $borards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
         if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
 
         $myTasks = [];

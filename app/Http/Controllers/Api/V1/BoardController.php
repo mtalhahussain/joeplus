@@ -64,13 +64,16 @@ class BoardController extends Controller
         return $this->successResponse($board, 'Board updated successfully');
     }
 
-    public function destroy($id)
+    public function destroy(Request $request,$id)
     {
         $board = Board::where('uuid', $id)->first();
+        $confirm = isset($request->confirm) ? (bool) $request->confirm : false;
         if(!$board) return $this->errorResponse([], 'Board not found', 422);
-        $hasTasks = $board->tasks()->get();
-        if(count($hasTasks) > 0) return $this->errorResponse([], 'Before deleting board, delete all tasks', 422);
+        $hasTasks = $board->tasks()->count();
+     
+        if(($hasTasks) > 0 && !$confirm) return $this->errorResponse([], 'Before deleting board, delete all tasks', 422);
         $board->delete();
+        if($confirm) $board->tasks()->delete();
 
         return $this->successResponse([], 'Board deleted successfully');
     }
