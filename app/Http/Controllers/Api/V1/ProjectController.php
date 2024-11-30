@@ -12,7 +12,7 @@ class ProjectController extends Controller
     {
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
-        $projects = Project::withCount('tasks')->paginate($perPage);
+        $projects = Project::withCount('tasks')->latest()->paginate($perPage);
         return $this->successResponse($projects, 'Projects fetched successfully');
     }
 
@@ -52,12 +52,13 @@ class ProjectController extends Controller
     {
         $project = Project::where('uuid', $id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
+     
+        if($project->tasks()->whereHas('attachments')->count()) $project->tasks()->attachments()->delete();
+        if($project->tasks()->whereHas('comments')->count() > 0) $project->tasks()->comments()->delete();
+        if($project->tasks()->whereHas('subTasks')->count() > 0) $project->tasks()->subTasks()->delete();
         $project->delete();
-        $project->tasks()->delete();
         $project->boards()->delete();
-        $project->tasks()->attachments()->delete();
-        $project->tasks()->subTasks()->delete();
-        $project->tasks()->comments()->delete();
+        $project->tasks()->delete();
         return $this->successResponse([], 'Project deleted successfully');
     }
 }
