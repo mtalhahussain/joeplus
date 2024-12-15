@@ -90,7 +90,6 @@ class AuthController extends Controller
                 if($userIsGoogle->email !== $request->email) return $this->errorResponse([],'Invalid credentials, This email is not register by Google', 422);
                 elseif(Auth::attempt(['email' => $request->email , 'password' => $request->email])) $user = Auth::user();
                 else return $this->errorResponse([],'Invalid credentials', 422);
-
             } 
             
             $token = $user->createToken('auth-token')->plainTextToken;
@@ -104,7 +103,6 @@ class AuthController extends Controller
             if (Auth::attempt($request->only('email', 'password'))) {
 
                 $user = Auth::user();
-
                 $token = $user->createToken('auth-token')->plainTextToken;
 
                 if ($user && $user->status === 0) return $this->errorResponse([],'Your account is blocked by Admin. Please contact support.', 422);
@@ -204,6 +202,7 @@ class AuthController extends Controller
             'updated_at' => now(),
         ]);
 
+        
         $logo = asset('images/logo.png');
         $expirationTime = now()->addMinutes(config('app.otp.expiration'))->diffInMinutes();
 
