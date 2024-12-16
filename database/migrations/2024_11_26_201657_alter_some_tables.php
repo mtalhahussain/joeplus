@@ -21,6 +21,15 @@ return new class extends Migration
         
             $table->unsignedBigInteger('sub_task_id')->nullable()->change();
         });
+
+        Schema::table('tasks', function (Blueprint $table) {
+        
+            $table->string('priority',99)->nullable()->after('status');
+        });
+        Schema::table('sub_tasks', function (Blueprint $table) {
+        
+            $table->string('priority',99)->nullable()->after('status');
+        });
     }
 
     /**
