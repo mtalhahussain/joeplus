@@ -146,12 +146,13 @@ class TaskController extends Controller
         if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
 
         $myTasks = [];
-
+       
         foreach($borards as $key => $board){
             
             $tasks = Task::with(['assignees:id,name,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $board->id)->latest()->take(10)->get();
             $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
-        return $this->successResponse($myTasks, 'Tasks fetched successfully');
+        
+        return $this->successResponse(['tasks' => $myTasks, 'project' => $project], 'Tasks fetched successfully');
     }
 }

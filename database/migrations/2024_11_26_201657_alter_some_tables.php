@@ -13,9 +13,13 @@ return new class extends Migration
     {
         Schema::table('boards', function (Blueprint $table) {
            
-            if(!Schema::hasColumn('boards', 'position')) {
-                $table->integer('position')->default(0)->after('project_id');
-            }
+            if(!Schema::hasColumn('boards', 'position')) $table->integer('position')->default(0)->after('project_id');
+            
+        });
+
+        Schema::table('task_assignees', function (Blueprint $table) {
+        
+            $table->unsignedBigInteger('sub_task_id')->nullable()->change();
         });
     }
 
