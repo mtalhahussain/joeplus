@@ -27,15 +27,15 @@ class ProjectController extends Controller
         $inputs['owner_id'] = auth()->id();
         $project = Project::create($inputs);
 
-        if ($request->members && count($request->members) > 0) {
-            foreach ($request->members as $key => $user_id) {
+        // if ($request->members && count($request->members) > 0) {
+        //     foreach ($request->members as $key => $user_id) {
               
-                $project->users()->attach($user_id, ['role' => $request->roles[$key]]);
-            }
-        } else {
+        //         $project->users()->attach($user_id, ['role' => $request->roles[$key]]);
+        //     }
+        // } else {
             
-            $project->users()->attach(Auth::id(), ['role' => 'admin']);
-        }
+        //     $project->users()->attach(Auth::id(), ['role' => 'admin']);
+        // }
 
         return $this->successResponse($project, 'Project created successfully');
     }
