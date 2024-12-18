@@ -143,7 +143,7 @@ class TaskController extends Controller
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
         $borards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
-        if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
+        if(count($borards) == 0) return $this->errorResponse(['tasks' => [], 'project' => $project], 'No boards found', 200);
 
         $myTasks = [];
        
