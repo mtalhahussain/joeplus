@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('project_users', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')->constrained('projects');
-            $table->foreignId('user_id')->constrained('users');
+            $table->unsignedBigInteger('project_id');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
+            $table->unsignedBigInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->enum('role', ['admin', 'editor', 'commenter', 'viewer']);
-            $table->timestamps();
         });
     }
 

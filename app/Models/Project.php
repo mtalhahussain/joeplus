@@ -10,6 +10,7 @@ class Project extends Model
     use HasFactory;
 
     protected $guarded = ['id','created_at','updated_at'];
+    protected $hidden = ['pivot'];
 
     static function boot()
     {
@@ -32,7 +33,7 @@ class Project extends Model
 
     public function members()
     {
-        return $this->belongsToMany(User::class)->withPivot('role');
+        return $this->belongsToMany(User::class,'project_users','project_id','user_id')->withPivot('role');
     }
 
 }

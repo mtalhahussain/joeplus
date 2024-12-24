@@ -46,7 +46,7 @@ class User extends Authenticatable
 
     public function getAvatarUrlAttribute()
     {
-        return $this->avatar ? asset('storage/users/'.$this->id.'/'.$this->avatar) : 'https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y'.$this->email.'&color=7F9CF5&background=EBF4FF';
+        return !is_null($this->avatar) ? asset('storage/users/'.$this->id.'/'.$this->avatar) : 'https://api.dicebear.com/9.x/initials/svg?seed='.str_replace(' ','-',$this->name);
     }
 
     public function getRoleAttribute()
@@ -66,7 +66,7 @@ class User extends Authenticatable
 
     public function projects()
     {
-        return $this->belongsToMany(Project::class)->withPivot('role');
+        return $this->belongsToMany(Project::class,'project_users','user_id','project_id');
     }
 
     public function companyUsers()

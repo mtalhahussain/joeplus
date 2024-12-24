@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Project, Task};
+use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
 {
@@ -12,33 +13,49 @@ class ProjectController extends Controller
     {
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
-        $projects = Project::withCount('tasks')->latest()->paginate($perPage);
+
+        if(auth()->user()->role == 'admin'){
+
+            $projects = Project::withCount('tasks')->latest()->paginate($perPage);
+
+        }else{
+            $projects = auth()->user()->projects()->withCount('tasks')->with('members:id,name,avatar')->paginate($perPage);
+        }
         return $this->successResponse($projects, 'Projects fetched successfully');
     }
 
     public function store(Request $request)
     {
+       
         $request->validate([
             'name' => 'required',
             'description' => 'nullable',
             'members' => 'nullable|array',
         ]);
+
         $inputs = $request->all();
         $inputs['owner_id'] = auth()->id();
-        $project = Project::create($inputs);
-
-        // if ($request->members && count($request->members) > 0) {
-        //     foreach ($request->members as $key => $user_id) {
-              
-        //         $project->users()->attach($user_id, ['role' => $request->roles[$key]]);
-        //     }
-        // } else {
+        $project = null;
+        DB::transaction(function () use ($inputs, $request, &$project) {
             
-        //     $project->users()->attach(Auth::id(), ['role' => 'admin']);
-        // }
+            $project = Project::create($inputs);
+
+            if (isset($request->members) && count($request->members) > 0) {
+                foreach ($request->members as $key => $member) {
+                    // dd($member);
+                    $project->members()->attach($project->id,$member);
+                }
+                $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
+
+            } else {
+               
+                $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
+            }
+        });
 
         return $this->successResponse($project, 'Project created successfully');
     }
+
 
     public function show($id)
     {
@@ -57,6 +74,19 @@ class ProjectController extends Controller
         $project = Project::where('uuid', $id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
         $project->update($request->all());
+
+        if (isset($request->members) && count($request->members) > 0) {
+            $project->members()->detach();
+            foreach ($request->members as $key => $member) {
+               
+                $project->members()->attach($project->id,$member);
+            }
+            $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
+
+        } else {
+           
+            $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
+        }
         return $this->successResponse($project, 'Project updated successfully');
     }
 
