@@ -139,7 +139,7 @@ class TaskController extends Controller
     {
        
         $perPage = $request->per_page ?? 10;
-        $project = Project::where('uuid', $project_id)->first();
+        $project = Project::where('uuid', $project_id)->with('members:id,name,avatar')->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
         $borards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
