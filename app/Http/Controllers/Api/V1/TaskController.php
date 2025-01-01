@@ -78,7 +78,7 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar', 'attachments:id,task_id,file_url'])->first();
+        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar', 'attachments:id,task_id,file_url','subTasks'])->first();
         if(!$task) return $this->errorResponse([], 'Task not found', 422);
         return $this->successResponse($task, 'Task fetched successfully');
     }
@@ -139,7 +139,10 @@ class TaskController extends Controller
     {
        
         $perPage = $request->per_page ?? 10;
-        $project = Project::where('uuid', $project_id)->with('members:id,name,avatar')->first();
+        $project = Project::where('uuid', $project_id)->with(['members' => function ($query) {
+                $query->select('users.id', 'users.name', 'users.avatar')
+                      ->addSelect('project_users.role as project_role');
+            }])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
         $borards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();

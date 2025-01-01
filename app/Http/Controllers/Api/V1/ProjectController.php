@@ -19,7 +19,10 @@ class ProjectController extends Controller
             $projects = Project::withCount('tasks')->latest()->paginate($perPage);
 
         }else{
-            $projects = auth()->user()->projects()->withCount('tasks')->with('members:id,name,avatar')->paginate($perPage);
+            $projects = auth()->user()->projects()->withCount('tasks')->with(['members' => function ($query) {
+                $query->select('users.id', 'users.name', 'users.avatar')
+                      ->addSelect('project_users.role as project_role');
+            }])->paginate($perPage);
         }
         return $this->successResponse($projects, 'Projects fetched successfully');
     }
@@ -69,38 +72,60 @@ class ProjectController extends Controller
         $request->validate([
             'name' => 'required',
             'description' => 'nullable',
+            'project_members' => 'nullable'
         ]);
 
         $project = Project::where('uuid', $id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
         $project->update($request->all());
 
-        if (isset($request->members) && count($request->members) > 0) {
+        if (isset($request->project_members) && count($request->project_members) > 0) {
             $project->members()->detach();
-            foreach ($request->members as $key => $member) {
+            foreach ($request->project_members as $key => $member) {
                
                 $project->members()->attach($project->id,$member);
             }
             $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
-
-        } else {
-           
-            $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
         }
         return $this->successResponse($project, 'Project updated successfully');
     }
-
     public function destroy($id)
     {
         $project = Project::where('uuid', $id)->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
-     
-        if($project->tasks()->whereHas('attachments')->count()) $project->tasks()->attachments()->delete();
-        if($project->tasks()->whereHas('comments')->count() > 0) $project->tasks()->comments()->delete();
-        if($project->tasks()->whereHas('subTasks')->count() > 0) $project->tasks()->subTasks()->delete();
+    
+        $project->tasks()->each(function ($task) {
+            if ($task->attachments()->count() > 0) {
+                $task->attachments()->delete();  // Delete the attachments for each task
+            }
+        });
+    
+        $project->tasks()->each(function ($task) {
+            if ($task->comments()->count() > 0) {
+                $task->comments()->delete();  // Delete the comments for each task
+            }
+        });
+    
+        $project->tasks()->each(function ($task) {
+            if ($task->subTasks()->count() > 0) {
+                $task->subTasks()->delete(); 
+                $task->subTasks()->each(function ($sub_task) { 
+                    if ($sub_task->attachments()->count() > 0) {
+                        $sub_task->attachments()->delete(); 
+                    }
+                });
+            }
+        });
+    
+        $project->members()->detach();
+    
         $project->delete();
+    
         $project->boards()->delete();
+    
         $project->tasks()->delete();
+    
         return $this->successResponse([], 'Project deleted successfully');
     }
+    
 }

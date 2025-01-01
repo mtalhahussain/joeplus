@@ -14,7 +14,7 @@ class SubTaskConroller extends Controller
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $task_id = $inputs['task_id'] ?? null;
-        if($task_id) $subTasks = SubTask::where('task_id', $task_id)->with(['task:id,title', 'assignees:id,name,avatar','attachments'])->paginate($perPage);
+        if($task_id) $subTasks = SubTask::where('task_id', $task_id)->with(['task:id,title', 'assignees:id,name,avatar','attachments:id,sub_task_id,file_url'])->paginate($perPage);
         else $subTasks = SubTask::with(['task:id,title', 'assignees:id,name,avatar'])->paginate($perPage);
         
         return $this->successResponse($subTasks, 'SubTasks fetched successfully');
