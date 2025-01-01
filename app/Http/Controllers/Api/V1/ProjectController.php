@@ -96,24 +96,29 @@ class ProjectController extends Controller
     
         $project->tasks()->each(function ($task) {
             if ($task->attachments()->count() > 0) {
-                $task->attachments()->delete();  // Delete the attachments for each task
-            }
-        });
-    
-        $project->tasks()->each(function ($task) {
-            if ($task->comments()->count() > 0) {
-                $task->comments()->delete();  // Delete the comments for each task
-            }
-        });
-    
-        $project->tasks()->each(function ($task) {
-            if ($task->subTasks()->count() > 0) {
-                $task->subTasks()->delete(); 
+                $task->attachments()->delete();
                 $task->subTasks()->each(function ($sub_task) { 
                     if ($sub_task->attachments()->count() > 0) {
                         $sub_task->attachments()->delete(); 
                     }
                 });
+            }
+        });
+    
+        $project->tasks()->each(function ($task) {
+            if ($task->comments()->count() > 0) {
+                $task->comments()->delete();
+                $task->subTasks()->each(function ($sub_task) { 
+                    if ($sub_task->comments()->count() > 0) {
+                        $sub_task->comments()->delete(); 
+                    }
+                });
+            }
+        });
+    
+        $project->tasks()->each(function ($task) {
+            if ($task->subTasks()->count() > 0) {
+                $task->subTasks()->delete();
             }
         });
     
