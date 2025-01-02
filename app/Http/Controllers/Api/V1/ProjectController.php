@@ -20,7 +20,7 @@ class ProjectController extends Controller
 
         }else{
             $projects = auth()->user()->projects()->withCount('tasks')->with(['members' => function ($query) {
-                $query->select('users.id', 'users.name', 'users.avatar')
+                $query->select('users.id', 'users.name', 'users.avatar','users.email')
                       ->addSelect('project_users.role as project_role');
             }])->paginate($perPage);
         }

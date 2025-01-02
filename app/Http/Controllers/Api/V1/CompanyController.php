@@ -18,15 +18,12 @@ class CompanyController extends Controller
 
         $userIds = auth()->user()->companyUsers()->pluck('user_id');
         if(count($userIds) == 0) return $this->errorResponse([],'No users found', 422);
-        if(isset($inputs['status']) && $inputs['status'] == 'pending'){
+        $userQuery = User::whereIn('id', $userIds);
 
-            $users = User::where('is_active',false)->whereIn('id', $userIds)->latest()->paginate($perPage); 
-
-        }else{
-
-            $users = User::where('is_active',true)->whereIn('id', $userIds)->latest()->paginate($perPage);
-        }
+        if(isset($inputs['status']) && $inputs['status'] == 'pending') $users = $userQuery->where('is_active',false)->latest()->paginate($perPage); 
+        else $users = $userQuery->where('is_active',true)->latest()->paginate($perPage);
         
+        if(isset($inputs['q'])) $users = $userQuery->where('is_active',true)->where('name', 'like', '%' . $inputs['q'] . '%')->get();
         return $this->successResponse($users, 'Users fetched successfully');
     }
 

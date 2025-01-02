@@ -140,7 +140,7 @@ class TaskController extends Controller
        
         $perPage = $request->per_page ?? 10;
         $project = Project::where('uuid', $project_id)->with(['members' => function ($query) {
-                $query->select('users.id', 'users.name', 'users.avatar')
+                $query->select('users.id', 'users.name', 'users.avatar','users.email')
                       ->addSelect('project_users.role as project_role');
             }])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
