@@ -16,7 +16,11 @@ return new class extends Migration
             if(!Schema::hasColumn('boards', 'position')) $table->integer('position')->default(0)->after('project_id');
             
         });
-
+        Schema::table('projects', function (Blueprint $table) {
+           
+            if(!Schema::hasColumn('projects', 'status')) $table->enum('status', ['on_track', 'at_risk', 'off_track'])->default('on_track')->after('visibility');
+            
+        });
         Schema::table('task_assignees', function (Blueprint $table) {
         
             if(!Schema::hasColumn('task_assignees', 'sub_task_id')) $table->unsignedBigInteger('sub_task_id')->nullable()->change();
