@@ -85,7 +85,7 @@ class ProjectController extends Controller
                
                 $project->members()->attach($project->id,$member);
             }
-            $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
+            // $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
         }
         return $this->successResponse($project, 'Project updated successfully');
     }
