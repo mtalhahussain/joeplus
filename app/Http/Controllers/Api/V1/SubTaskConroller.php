@@ -14,8 +14,8 @@ class SubTaskConroller extends Controller
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $task_id = $inputs['task_id'] ?? null;
-        if($task_id) $subTasks = SubTask::where('task_id', $task_id)->with(['task:id,title', 'assignees:id,name,avatar','attachments:id,sub_task_id,file_url'])->paginate($perPage);
-        else $subTasks = SubTask::with(['task:id,title', 'assignees:id,name,avatar'])->paginate($perPage);
+        if($task_id) $subTasks = SubTask::where('task_id', $task_id)->with(['task:id,title', 'assignees:id,name,email,avatar','attachments:id,sub_task_id,file_url'])->paginate($perPage);
+        else $subTasks = SubTask::with(['task:id,title', 'assignees:id,name,email,avatar'])->paginate($perPage);
         
         return $this->successResponse($subTasks, 'SubTasks fetched successfully');
     }
@@ -64,8 +64,8 @@ class SubTaskConroller extends Controller
         if(!$subTask) return $this->errorResponse([], 'SubTask not found', 422);
         DB::beginTransaction();
         $subTask->update($request->all());
-        if(isset($request->assignees) && count($request->assignees) > 0){
-            $subTask->assignees()->sync($request->assignees);
+        if(isset($request->assignees_id) && count($request->assignees_id) > 0){
+            $subTask->assignees()->sync($request->assignees_id);
         }
         if($request->hasFile('attachments')){
             $attachments = [];
