@@ -35,6 +35,7 @@ return new class extends Migration
             }
             if(!Schema::hasColumn('tasks', 'due_start')) $table->date('due_start')->nullable()->after('description');
             if(!Schema::hasColumn('tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
+            if(!Schema::hasColumn('tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
 
         });
         Schema::table('sub_tasks', function (Blueprint $table) {
@@ -42,6 +43,8 @@ return new class extends Migration
             if(!Schema::hasColumn('sub_tasks', 'priority')) $table->string('priority',99)->nullable()->after('status');
             if(!Schema::hasColumn('sub_tasks', 'due_start')) $table->date('due_start')->nullable()->after('description');
             if(!Schema::hasColumn('sub_tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
+            if(!Schema::hasColumn('sub_tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
+
         });
     }
 
