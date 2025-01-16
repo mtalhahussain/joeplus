@@ -96,6 +96,9 @@ class TaskController extends Controller
         $task->update($request->all());
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
             $task->assignees()->sync($request->assignees_id);
+        }else{
+
+            $task->assignees()->detach();
         }
 
         if($request->hasFile('attachments')){
