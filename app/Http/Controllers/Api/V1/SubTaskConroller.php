@@ -28,7 +28,9 @@ class SubTaskConroller extends Controller
             'task_id' => 'required',
         ]);
         DB::beginTransaction();
-        $subTask = SubTask::create($request->all());
+        $inputs = $request->all();
+        $inputs['user_id'] = auth()->id();
+        $subTask = SubTask::create($inputs);
         if(isset($request->assignees) && count($request->assignees) > 0){
             $subTask->assignees()->attach($request->assignees);
         }
@@ -66,7 +68,11 @@ class SubTaskConroller extends Controller
         $subTask->update($request->all());
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
             $subTask->assignees()->sync($request->assignees_id);
+        }else{
+
+            $subTask->assignees()->detach();
         }
+
         if($request->hasFile('attachments')){
             $attachments = [];
             foreach($request->file('attachments') as $attachment){

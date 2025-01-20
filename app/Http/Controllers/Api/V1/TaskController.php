@@ -15,11 +15,11 @@ class TaskController extends Controller
         $inputs = $request->all();
         $perPage = $inputs['per_page'] ?? 10;
         $myTasks = [];
-        $borards = Board::select('id','uuid','name','position')->where('user_id', auth()->id())->orderBy('position')->whereNull('project_id')->get();
-        if(count($borards) == 0) return $this->errorResponse([], 'No boards found', 200);
-        foreach($borards as $key => $board){
+        $boards = Board::select('id','uuid','name','position')->where('user_id', auth()->id())->orderBy('position')->whereNull('project_id')->get();
+        if(count($boards) == 0) return $this->errorResponse([], 'No boards found', 200);
+        foreach($boards as $key => $board){
            
-            $tasks = Task::with(['assignees:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
+            $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
             $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
@@ -31,7 +31,7 @@ class TaskController extends Controller
         $offset = $request->get('offset', 0); 
         $limit = $request->get('limit', 10);
 
-        $tasks = Task::with(['assignees:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board_id)->latest()
+        $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board_id)->latest()
                     ->offset($offset)
                     ->limit($limit)
                     ->get();
@@ -55,8 +55,11 @@ class TaskController extends Controller
             'description' => 'nullable',
             'board_id' => 'required',
         ]);
+
+        $inputs = $request->all();
+        $inputs['user_id'] = auth()->id();
         DB::beginTransaction();
-        $task = Task::create($request->all());
+        $task = Task::create($inputs);
         if(isset($request->assignees) && count($request->assignees) > 0){
             $task->assignees()->attach($request->assignees);
         }
@@ -148,16 +151,35 @@ class TaskController extends Controller
             }])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
-        $borards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
-        if(count($borards) == 0) return $this->errorResponse(['tasks' => [], 'project' => $project], 'No boards found', 200);
+        $boards = Board::select('id','uuid', 'name', 'position')->where('user_id', auth()->id())->orderBy('position')->where('project_id',$project->id)->get();
+        if(count($boards) == 0) return $this->errorResponse(['tasks' => [], 'project' => $project], 'No boards found', 200);
 
         $myTasks = [];
        
-        foreach($borards as $key => $board){
+        foreach ($boards as $key => $board) {
             
-            $tasks = Task::with(['assignees:id,name,email,avatar'])->withCount('subTasks')->where('project_id',$project->id)->where('board_id', $board->id)->latest()->take(10)->get();
-            $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
-        }
+            $tasks = Task::with([
+                'assignees:id,name,email,avatar',
+                'creator:id,name,email,avatar'
+            ])
+            ->withCount('subTasks')
+            ->where('project_id', $project->id)
+            ->where('board_id', $board->id)
+            ->whereHas('assignees', function ($query) use ($project) {
+                $query->whereIn('user_id', $project->members->pluck('id'));
+            })
+            ->latest()
+            ->take(10)
+            ->get();
+        
+            $myTasks[] = [
+                'id' => $board->id,
+                'board_uuid' => $board->uuid,
+                'name' => $board->name,
+                'position' => $board->position,
+                'tasks' => $tasks,
+            ];
+        }        
         
         return $this->successResponse(['tasks' => $myTasks, 'project' => $project], 'Tasks fetched successfully');
     }
