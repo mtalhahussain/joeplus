@@ -165,9 +165,9 @@ class TaskController extends Controller
             ->withCount('subTasks')
             ->where('project_id', $project->id)
             ->where('board_id', $board->id)
-            ->whereHas('assignees', function ($query) use ($project) {
-                $query->whereIn('user_id', $project->members->pluck('id'));
-            })
+            // ->whereHas('assignees', function ($query) use ($project) {
+            //     $query->whereIn('user_id', $project->members->pluck('id'));
+            // })
             ->latest()
             ->take(10)
             ->get();
