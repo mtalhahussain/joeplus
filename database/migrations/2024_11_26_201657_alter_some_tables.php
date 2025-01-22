@@ -38,6 +38,7 @@ return new class extends Migration
             if(!Schema::hasColumn('tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
             if(!Schema::hasColumn('tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
             if(!Schema::hasColumn('tasks', 'user_id')) $table->unsignedBigInteger('user_id')->after('uuid');
+            $table->unsignedBigInteger('user_id')->nullable()->change();
 
         });
         Schema::table('sub_tasks', function (Blueprint $table) {
@@ -47,6 +48,7 @@ return new class extends Migration
             if(!Schema::hasColumn('sub_tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
             if(!Schema::hasColumn('sub_tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
             if(!Schema::hasColumn('sub_tasks', 'user_id')) $table->unsignedBigInteger('user_id')->after('uuid');
+            $table->unsignedBigInteger('user_id')->nullable()->change();
 
         });
     }
