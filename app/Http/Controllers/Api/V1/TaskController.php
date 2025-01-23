@@ -98,8 +98,10 @@ class TaskController extends Controller
         if(!$task) return $this->errorResponse([], 'Task not found', 422);
         $task->update($request->all());
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
+
             $task->assignees()->sync($request->assignees_id);
-        }else{
+
+        }elseif(isset($request->assignees_id) && count($request->assignees_id) == 0){
 
             $task->assignees()->detach();
         }

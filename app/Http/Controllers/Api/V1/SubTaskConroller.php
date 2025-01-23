@@ -67,8 +67,10 @@ class SubTaskConroller extends Controller
         DB::beginTransaction();
         $subTask->update($request->all());
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
+            
             $subTask->assignees()->sync($request->assignees_id);
-        }else{
+            
+        }elseif(isset($request->assignees_id) && count($request->assignees_id) == 0){
 
             $subTask->assignees()->detach();
         }
