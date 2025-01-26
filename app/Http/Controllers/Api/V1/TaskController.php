@@ -154,7 +154,6 @@ class TaskController extends Controller
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
         $project_member_ids = $project->members()->pluck('user_id');
-  
 
         $boards = Board::select('id','uuid', 'name', 'position')->whereIn('user_id', $project_member_ids)->orderBy('position')->where('project_id',$project->id)->get();
         if(count($boards) == 0) return $this->errorResponse(['tasks' => [], 'project' => $project], 'No boards found', 200);
