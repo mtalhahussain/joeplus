@@ -16,7 +16,7 @@ class CommentController extends Controller
     {
         $request->validate([
             'task_id' => 'required|exists:tasks,id',
-            'comment' => 'required|string|max:255',
+            'comment' => 'required|string',
         ]);
 
         $comment = TaskComment::create([

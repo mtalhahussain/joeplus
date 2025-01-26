@@ -16,6 +16,13 @@ return new class extends Migration
             if(!Schema::hasColumn('boards', 'position')) $table->integer('position')->default(0)->after('project_id');
             
         });
+
+        Schema::table('boards', function (Blueprint $table) {
+           
+            if(!Schema::hasColumn('boards', 'position')) $table->integer('position')->default(0)->after('project_id');
+            
+        });
+        
         Schema::table('projects', function (Blueprint $table) {
            
             if(!Schema::hasColumn('projects', 'status')) $table->enum('status', ['on_track', 'at_risk', 'off_track'])->default('on_track')->after('visibility');
