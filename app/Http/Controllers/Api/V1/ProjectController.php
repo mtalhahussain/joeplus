@@ -4,7 +4,8 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Project, Task};
+use App\Models\{Project, Task, User};
+use App\Notifications\ProjectMemberNotification;
 use Illuminate\Support\Facades\DB;
 
 class ProjectController extends Controller
@@ -45,8 +46,14 @@ class ProjectController extends Controller
 
             if (isset($request->members) && count($request->members) > 0) {
                 foreach ($request->members as $key => $member) {
-                    // dd($member);
+                   
                     $project->members()->attach($project->id,$member);
+                  
+                    if(auth()->id() != $member['user_id']){
+                        $member = User::find($member['user_id']);
+                        $member->notify(new ProjectMemberNotification(auth()->user()->name,$project));
+                    }
+
                 }
                 $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
 
@@ -84,6 +91,10 @@ class ProjectController extends Controller
             foreach ($request->project_members as $key => $member) {
                
                 $project->members()->attach($project->id,$member);
+                if(auth()->id() != $member['user_id']){
+                    $member = User::find($member['user_id']);
+                    $member->notify(new ProjectMemberNotification(auth()->user()->name,$project));
+                }
             }
             // $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
         }

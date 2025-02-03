@@ -11,12 +11,13 @@ class ProjectMemberNotification extends Notification
 {
     use Queueable;
 
-    /**
-     * Create a new notification instance.
-     */
-    public function __construct()
+    public $project;
+    public $username;
+
+    public function __construct($username, $project)
     {
-        //
+        $this->username = $username;
+        $this->project = $project;
     }
 
     /**
@@ -26,7 +27,7 @@ class ProjectMemberNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ['database'];
     }
 
     /**
@@ -38,6 +39,16 @@ class ProjectMemberNotification extends Notification
                     ->line('The introduction to the notification.')
                     ->action('Notification Action', url('/'))
                     ->line('Thank you for using our application!');
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return [
+            'project_id' => $this->project->id,
+            'project_uuid' => $this->project->uuid,
+            'title' => $this->username.' added you to a project',
+            'body' => $this->project->name,
+        ];
     }
 
     /**
