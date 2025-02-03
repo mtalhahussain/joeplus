@@ -53,7 +53,7 @@ class TaskAssignNotification extends Notification
             'task_id' => $this->task->id,
             'task_uuid' => $this->task->uuid,
             'title' => $this->username.' assigned you a task',
-            'body' => $this->task->title.' has been assigned to you',
+            'body' => $this->task->title,
         ];
     }
 

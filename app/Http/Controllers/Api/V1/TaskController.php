@@ -105,6 +105,10 @@ class TaskController extends Controller
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
 
             $task->assignees()->sync($request->assignees_id);
+            $assignees = $task->assignees()->get();
+            foreach($assignees as $assignee){
+                $assignee->notify(new TaskAssignNotification(auth()->user()->name,$task));
+            }
 
         }elseif(isset($request->assignees_id) && count($request->assignees_id) == 0){
 
