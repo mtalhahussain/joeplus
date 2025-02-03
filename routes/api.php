@@ -40,7 +40,8 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::get('board-tasks/{board_id}', [TaskController::class, 'getBoardTasks']);
         Route::get('project-tasks/{project_id}', [TaskController::class, 'getProjectTasks']);
         Route::post('position-update', [BoardController::class, 'boardPositionUpdate']);
-
+        Route::get('notifications', [UserController::class, 'notifications']);
+        Route::post('notifications/mark-read', [UserController::class, 'markRead']);
         Route::apiResources([
             'users' => UserController::class,
             'company' => CompanyController::class,

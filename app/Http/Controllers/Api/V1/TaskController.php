@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Task, Board, Attachment, Project};
+use App\Notifications\TaskAssignNotification;
 use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
@@ -62,6 +63,10 @@ class TaskController extends Controller
         $task = Task::create($inputs);
         if(isset($request->assignees) && count($request->assignees) > 0){
             $task->assignees()->attach($request->assignees);
+            $assignees = $task->assignees()->get();
+            foreach($assignees as $assignee){
+                $assignee->notify(new TaskAssignNotification(auth()->user()->name,$task));
+            }
         }
 
         if($request->hasFile('attachments')){
@@ -105,6 +110,8 @@ class TaskController extends Controller
 
             $task->assignees()->detach();
         }
+// Notifications:
+// When members are assigned to a project or task, do they receive notifications? If not, they should.
 
         if($request->hasFile('attachments')){
             $attachments = [];
@@ -153,7 +160,7 @@ class TaskController extends Controller
             }])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
-        $project_member_ids = $project->members()->pluck('user_id');
+        $project_member_ids = $project->members()->pluck('user_id'); 
 
         $boards = Board::select('id','uuid', 'name', 'position')->whereIn('user_id', $project_member_ids)->orderBy('position')->where('project_id',$project->id)->get();
         if(count($boards) == 0) return $this->errorResponse(['tasks' => [], 'project' => $project], 'No boards found', 200);

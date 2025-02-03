@@ -147,4 +147,22 @@ class UserController extends Controller
         return $start; // End date and time
     }
 
+    public function notifications(Request $request)
+    {
+        $perPage = $request->per_page ?? 10;
+        $notifications = auth()->user()->notifications()->paginate($perPage);
+        return $this->successResponse($notifications, 'Notifications fetched successfully');
+    }
+
+    public function markRead(Request $request)
+    {
+        $request->validate([
+            'notification_id' => 'required|exists:notifications,id',
+        ]);
+        $notification = auth()->user()->notifications()->where('id', $request->notification_id)->first();
+        if(!$notification) return $this->errorResponse('Notification not found', 422);
+        $notification->markAsRead();
+        return $this->successResponse([], 'Notification marked as read');
+    }
+
 }
