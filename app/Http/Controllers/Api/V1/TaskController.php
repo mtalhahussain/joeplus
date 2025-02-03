@@ -103,11 +103,16 @@ class TaskController extends Controller
         if(!$task) return $this->errorResponse([], 'Task not found', 422);
         $task->update($request->all());
         if(isset($request->assignees_id) && count($request->assignees_id) > 0){
-
+            
+            $existAssignees = $task->assignees()->pluck('user_id')->toArray();
             $task->assignees()->sync($request->assignees_id);
             $assignees = $task->assignees()->get();
-            foreach($assignees as $assignee){
-                $assignee->notify(new TaskAssignNotification(auth()->user()->name,$task));
+           if(count($assignees) > 0){
+                foreach($assignees as $assignee){
+                    if(!in_array($assignee->id, $existAssignees)){
+                        $assignee->notify(new TaskAssignNotification(auth()->user()->name,$task));
+                    }
+                }
             }
 
         }elseif(isset($request->assignees_id) && count($request->assignees_id) == 0){

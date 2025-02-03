@@ -87,16 +87,15 @@ class ProjectController extends Controller
         $project->update($request->all());
 
         if (isset($request->project_members) && count($request->project_members) > 0) {
+            $existingMembers = $project->members->pluck('id')->toArray();
             $project->members()->detach();
             foreach ($request->project_members as $key => $member) {
-               
-                $project->members()->attach($project->id,$member);
-                if(auth()->id() != $member['user_id']){
-                    $member = User::find($member['user_id']);
-                    $member->notify(new ProjectMemberNotification(auth()->user()->name,$project));
+            $project->members()->attach($project->id, $member);
+                if (!in_array($member['user_id'], $existingMembers) && auth()->id() != $member['user_id']) {
+                    $newMember = User::find($member['user_id']);
+                    $newMember->notify(new ProjectMemberNotification(auth()->user()->name, $project));
                 }
             }
-            // $project->members()->attach($project->id, ['user_id' => auth()->id(),'role' => 'admin']);
         }
         return $this->successResponse($project, 'Project updated successfully');
     }
