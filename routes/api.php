@@ -43,6 +43,7 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::post('position-update', [BoardController::class, 'boardPositionUpdate']);
         Route::get('notifications', [UserController::class, 'notifications']);
         Route::post('notifications/mark-read', [UserController::class, 'markRead']);
+        Route::post('notifications/mark-read-all', [UserController::class, 'markReadAl']);
 
         Route::apiResources([
             'users' => UserController::class,

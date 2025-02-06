@@ -165,4 +165,10 @@ class UserController extends Controller
         return $this->successResponse([], 'Notification marked as read');
     }
 
+    public function markReadAl(Request $request)
+    {
+        auth()->user()->unreadNotifications->markAsRead();
+        return $this->successResponse([], 'All notifications marked as read');
+    }
+
 }

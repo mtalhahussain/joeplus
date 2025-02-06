@@ -18,7 +18,7 @@ class User extends Authenticatable
 
     protected $guarded = ['id','created_at','updated_at']; 
 
-    protected $appends = ['role', 'avatar_url'];
+    protected $appends = ['role', 'avatar_url', 'unread_notifications_count'];
 
     protected $hidden = [
         'password',
@@ -74,5 +74,8 @@ class User extends Authenticatable
         return $this->belongsToMany(User::class, 'company_users', 'company_id', 'user_id');
     }
     
-
+    public function getUnreadNotificationsCountAttribute()
+    {
+        return $this->unreadNotifications->count();
+    }
 }
