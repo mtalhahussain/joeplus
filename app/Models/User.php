@@ -26,7 +26,7 @@ class User extends Authenticatable
         'roles',
         'google_id',
         'pivot',
-        'notifications'
+        'unread_notifications'
     ];
     
     protected $casts = [
