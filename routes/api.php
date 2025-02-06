@@ -10,7 +10,8 @@ use App\Http\Controllers\Api\V1\{
     ProjectController,
     CommentController,
     SubTaskConroller,
-    CompanyController
+    CompanyController,
+    MetaController
 };
 
 
@@ -42,6 +43,7 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::post('position-update', [BoardController::class, 'boardPositionUpdate']);
         Route::get('notifications', [UserController::class, 'notifications']);
         Route::post('notifications/mark-read', [UserController::class, 'markRead']);
+
         Route::apiResources([
             'users' => UserController::class,
             'company' => CompanyController::class,
@@ -50,6 +52,7 @@ Route::group(['prefix' => 'v1'] , function(){
             'projects' => ProjectController::class,
             'comments' => CommentController::class,
             'sub-tasks' => SubTaskConroller::class,
+            'meta' => MetaController::class,    
         ]);
 
     });
