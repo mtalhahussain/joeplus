@@ -25,7 +25,8 @@ class User extends Authenticatable
         'remember_token',
         'roles',
         'google_id',
-        'pivot'
+        'pivot',
+        'unread_notifications'
     ];
 
     
