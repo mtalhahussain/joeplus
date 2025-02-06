@@ -26,9 +26,8 @@ class User extends Authenticatable
         'roles',
         'google_id',
         'pivot',
-        'unread_notifications'
+        'notifications'
     ];
-
     
     protected $casts = [
         'email_verified_at' => 'datetime',
