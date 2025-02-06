@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Task, TaskMeta};
+use App\Models\{Task, TaskMeta, Project};
 
 class MetaController extends Controller
 {
@@ -33,14 +33,14 @@ class MetaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'task_id' => 'required|exists:tasks,uuid',
+            'project_id' => 'required|exists:projects,uuid',
             'type' => 'required',
             'key' => 'required',
             'value' => 'nullable',
         ]);
 
         $inputs = $request->all();
-        $inputs['task_id'] = Task::where('uuid', $inputs['task_id'])->first()->id;
+        $inputs['project_id'] = Project::where('uuid', $inputs['project_id'])->first()->id;
         $inputs['user_id'] = auth()->id();
         $taskMeta = TaskMeta::create($inputs);
         return $this->successResponse($taskMeta, 'Task meta created successfully');
@@ -51,10 +51,10 @@ class MetaController extends Controller
      */
     public function show(string $id)
     {
-        $task = Task::where('uuid', $id)->first();
-        if(!$task) return $this->errorResponse([], 'Task not found', 422);
+        $project = Project::where('uuid', $id)->first();
+        if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
-        $taskMeta = TaskMeta::where('task_id', $task->id)->latest()->get();
+        $taskMeta = TaskMeta::where('task_id', $project->id)->latest()->get();
         return $this->successResponse($taskMeta, 'Task meta fetched successfully');
     }
 
