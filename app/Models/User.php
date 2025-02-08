@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->unreadNotifications->count();
     }
+
+    public function invitations()
+    {
+        return $this->hasMany(Invitation::class);
+    }
 }

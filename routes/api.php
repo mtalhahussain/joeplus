@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\{
     AuthController,
@@ -11,7 +10,8 @@ use App\Http\Controllers\Api\V1\{
     CommentController,
     SubTaskConroller,
     CompanyController,
-    MetaController
+    MetaController,
+    InviteController
 };
 
 
@@ -30,7 +30,7 @@ Route::group(['prefix' => 'v1'] , function(){
 
     Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
-
+    Route::get('/accept-invite/{token}', [InviteController::class, 'acceptInvite']);
 
     Route::group(['middleware' => 'auth:sanctum'], function(){
 
@@ -44,7 +44,8 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::get('notifications', [UserController::class, 'notifications']);
         Route::post('notifications/mark-read', [UserController::class, 'markRead']);
         Route::post('notifications/mark-read-all', [UserController::class, 'markReadAl']);
-
+        Route::post('/invite', [InviteController::class, 'inviteUser']);
+        
         Route::apiResources([
             'users' => UserController::class,
             'company' => CompanyController::class,
