@@ -51,7 +51,7 @@
     <div class="container">
         <h2>You're Invited!</h2>
         <p>You have been invited to join {{ $invitation->project_id ? 'a project' : 'a task' }}.</p>
-        <a href="{{ url('/api/v1').'/accept-invite'.$invitation->token }}" class="btn">
+        <a href="{{ url('/api/v1').'/accept-invite/'.$invitation->token }}" class="btn">
             Accept Invitation
         </a>
         <p class="footer">If you did not request this invitation, please ignore this email.</p>
