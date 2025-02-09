@@ -36,4 +36,8 @@ class Project extends Model
         return $this->belongsToMany(User::class,'project_users','project_id','user_id')->withPivot('role');
     }
 
+    public function meta()
+    {
+        return $this->hasMany(TaskMeta::class, 'project_id', 'id');
+    }
 }

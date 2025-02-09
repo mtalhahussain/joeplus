@@ -57,6 +57,6 @@ class Task extends Model
 
     public function meta()
     {
-        return $this->hasMany(TaskMeta::class, 'task_id');
+        return $this->hasMany(MetaValue::class, 'task_id');
     }
 }

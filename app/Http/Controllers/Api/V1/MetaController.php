@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Task, TaskMeta, Project};
+use App\Models\{Task, TaskMeta, Project, MetaValue};
 use App\Rules\UniqueProjectEntry;
 
 class MetaController extends Controller
@@ -53,10 +53,10 @@ class MetaController extends Controller
     public function show(string $id)
     {
         $project = Project::where('uuid', $id)->first();
-        if(!$project) return $this->errorResponse([], 'Project not found', 422);
+       
+        if(!$project) return $this->errorResponse([], 'No project meta found', 422);
 
-        $taskMeta = TaskMeta::where('task_id', $project->id)->latest()->get();
-        return $this->successResponse($taskMeta, 'Task meta fetched successfully');
+        return $this->successResponse($project->meta, 'Project meta fetched successfully');
     }
 
     /**
@@ -70,20 +70,24 @@ class MetaController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $uuid)
     {
         $request->validate([
-            'type' => 'required',
-            'key' => 'required',
-            'value' => 'nullable',
+            'meta_id' => 'required|exists:task_metas,id',
+            'value' => 'required|string',
         ]);
 
-        $inputs = $request->all();
-        $taskMeta = TaskMeta::where('uuid', $id)->first();
-        if(!$taskMeta) return $this->errorResponse([], 'Task meta not found', 422);
-        $taskMeta->update($inputs);
-        return $this->successResponse($taskMeta, 'Task meta updated successfully');
+        $task = Task::where('uuid', $uuid)->first();
+        if(!$task) return $this->errorResponse([], 'Task not found', 422);
+
+        $data = MetaValue::updateOrCreate(
+            ['task_id' => $task->id, 'meta_id' => $request->meta_id],
+            ['value' => $request->value]
+        );
+
+        return $this->successResponse($data, 'Task meta updated successfully');
     }
+
 
     /**
      * Remove the specified resource from storage.

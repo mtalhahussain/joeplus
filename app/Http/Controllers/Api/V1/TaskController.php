@@ -164,7 +164,7 @@ class TaskController extends Controller
         $project = Project::where('uuid', $project_id)->with(['members' => function ($query) {
                 $query->select('users.id', 'users.name', 'users.avatar','users.email')
                       ->addSelect('project_users.role as project_role');
-            }])->first();
+            },'meta'])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
 
         $project_member_ids = $project->members()->pluck('user_id'); 
@@ -178,7 +178,8 @@ class TaskController extends Controller
             
             $tasks = Task::with([
                 'assignees:id,name,email,avatar',
-                'creator:id,name,email,avatar'
+                'creator:id,name,email,avatar',
+                'meta'
             ])
             ->withCount('subTasks')
             ->where('project_id', $project->id)
