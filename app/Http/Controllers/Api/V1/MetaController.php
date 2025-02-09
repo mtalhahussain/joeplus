@@ -50,11 +50,24 @@ class MetaController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Request $request, string $id)
     {
-        $project = Project::where('uuid', $id)->first();
+        $request->validate([
+            'type' => 'required|in:project,task',
+        ]);
+
+        if($request->type == 'project'){
+            $project = Project::where('uuid', $id)->first();
+            if(!$project) return $this->errorResponse([], 'No project meta found', 422);
+            return $this->successResponse($project->meta, 'Project meta fetched successfully');
+        }
+
+        $task = Task::where('uuid', $id)->first();
+        if(!$task) return $this->errorResponse([], 'No task meta found', 422);
+        return $this->successResponse($task->meta, 'Task meta fetched successfully');
+        // $project = Project::where('uuid', $id)->first();
        
-        if(!$project) return $this->errorResponse([], 'No project meta found', 422);
+        // if(!$project) return $this->errorResponse([], 'No project meta found', 422);
 
         return $this->successResponse($project->meta, 'Project meta fetched successfully');
     }
@@ -92,11 +105,20 @@ class MetaController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Request $request, string $id)
     {
-        $taskMeta = TaskMeta::where('uuid', $id)->first();
-        if(!$taskMeta) return $this->errorResponse([], 'Task meta not found', 422);
-        $taskMeta->delete();
-        return $this->successResponse([], 'Task meta deleted successfully');
+        $request->validate([
+            'type' => 'required|in:meta,metaValue',
+        ]);
+        if($request->type == 'meta'){
+            $taskMeta = TaskMeta::where('uuid', $id)->first();
+            if(!$taskMeta) return $this->errorResponse([], 'Task meta not found', 422);
+            $taskMeta->delete();
+            return $this->successResponse([], 'Task meta deleted successfully');
+        }
+        $metaValue = MetaValue::where('uuid', $id)->first();
+        if(!$metaValue) return $this->errorResponse([], 'Task meta value not found', 422);
+        $metaValue->delete();
+        return $this->successResponse([], 'Task meta value deleted successfully');
     }
 }

@@ -11,6 +11,15 @@ class MetaValue extends Model
 
     protected $guarded = ['id','created_at','updated_at'];
 
+    static function boot()
+    {
+        parent::boot();
+
+        static::creating(function($model){
+            $model->uuid = (string) \Illuminate\Support\Str::uuid();
+        });
+    }
+
     public function customField()
     {
         return $this->belongsTo(TaskMeta::class, 'meta_id');

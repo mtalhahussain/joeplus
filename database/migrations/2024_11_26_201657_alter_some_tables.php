@@ -66,6 +66,13 @@ return new class extends Migration
             $table->string('value',255)->nullable()->change();
 
         });
+
+        Schema::table('meta_values', function (Blueprint $table) {
+
+            if(!Schema::hasColumn('meta_values', 'uuid')) $table->string('uuid', 36)->after('id');
+           
+        });
+        
     }
 
     /**
