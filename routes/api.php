@@ -28,6 +28,8 @@ Route::group(['prefix' => 'v1'] , function(){
     Route::post('resend-otp', [AuthController::class, 'resendOtp']);
     Route::post('verify-otp', [AuthController::class, 'verifyOtpCode']);
 
+    Route::get('demo', [InviteController::class, 'Demo']);
+
     Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/accept-invite/{token}', [InviteController::class, 'acceptInvite']);
@@ -54,7 +56,8 @@ Route::group(['prefix' => 'v1'] , function(){
             'projects' => ProjectController::class,
             'comments' => CommentController::class,
             'sub-tasks' => SubTaskConroller::class,
-            'meta' => MetaController::class,    
+            'meta' => MetaController::class,
+            
         ]);
 
     });

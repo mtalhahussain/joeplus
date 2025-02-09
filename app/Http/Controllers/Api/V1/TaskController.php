@@ -20,7 +20,7 @@ class TaskController extends Controller
         if(count($boards) == 0) return $this->errorResponse([], 'No boards found', 200);
         foreach($boards as $key => $board){
            
-            $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
+            $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar','meta'])->withCount('subTasks')->where('board_id', $board->id)->latest()->take(10)->get();
             $myTasks[] = ['id' => $board->id, 'board_uuid' => $board->uuid, 'name' => $board->name, 'position' => $board->position, 'tasks' => $tasks];
         }
         return $this->successResponse($myTasks, 'Tasks fetched successfully');
@@ -32,7 +32,7 @@ class TaskController extends Controller
         $offset = $request->get('offset', 0); 
         $limit = $request->get('limit', 10);
 
-        $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar'])->withCount('subTasks')->where('board_id', $board_id)->latest()
+        $tasks = Task::with(['assignees:id,name,email,avatar','creator:id,name,email,avatar','meta'])->withCount('subTasks')->where('board_id', $board_id)->latest()
                     ->offset($offset)
                     ->limit($limit)
                     ->get();
@@ -86,7 +86,7 @@ class TaskController extends Controller
 
     public function show($id)
     {
-        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar', 'attachments:id,task_id,file_url','subTasks'])->first();
+        $task = Task::where('uuid', $id)->with(['assignees:id,name,avatar', 'attachments:id,task_id,file_url','subTasks','meta'])->first();
         if(!$task) return $this->errorResponse([], 'Task not found', 422);
         return $this->successResponse($task, 'Task fetched successfully');
     }
@@ -119,8 +119,6 @@ class TaskController extends Controller
 
             $task->assignees()->detach();
         }
-// Notifications:
-// When members are assigned to a project or task, do they receive notifications? If not, they should.
 
         if($request->hasFile('attachments')){
             $attachments = [];

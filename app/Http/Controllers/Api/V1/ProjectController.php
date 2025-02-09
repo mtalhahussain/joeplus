@@ -17,13 +17,13 @@ class ProjectController extends Controller
 
         if(auth()->user()->role == 'admin'){
 
-            $projects = Project::withCount('tasks')->latest()->paginate($perPage);
+            $projects = Project::withCount('tasks')->with(['tasks.meta'])->latest()->paginate($perPage);
 
         }else{
             $projects = auth()->user()->projects()->withCount('tasks')->with(['members' => function ($query) {
                 $query->select('users.id', 'users.name', 'users.avatar','users.email')
                       ->addSelect('project_users.role as project_role');
-            }])->paginate($perPage);
+            },'tasks.meta'])->paginate($perPage);
         }
         return $this->successResponse($projects, 'Projects fetched successfully');
     }
@@ -69,7 +69,7 @@ class ProjectController extends Controller
 
     public function show($id)
     {
-        $project = Project::where('uuid', $id)->with(['tasks:id,title,project_id'])->first();
+        $project = Project::where('uuid', $id)->with(['tasks:id,title,project_id','tasks.meta'])->first();
         if(!$project) return $this->errorResponse([], 'Project not found', 422);
         return $this->successResponse($project, 'Project fetched successfully');
     }

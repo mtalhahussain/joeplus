@@ -63,6 +63,7 @@ return new class extends Migration
         
             if(!Schema::hasColumn('task_metas', 'project_id')) $table->unsignedBigInteger('project_id')->after('task_id');
             $table->unsignedBigInteger('task_id')->nullable()->change();
+            $table->string('value',255)->nullable()->change();
 
         });
     }

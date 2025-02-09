@@ -39,23 +39,51 @@ class InviteController extends Controller
     {
         $invitation = Invitation::where('token', $token)->first();
 
-        if (!$invitation || $invitation->status !== 'pending') return $this->errorResponse([], 'Invalid or expired invitation', 400);
+        if (!$invitation || $invitation->status !== 'pending') return $this->errorResponse([], 'Invalid or expired invitation', 422);
         
         $user = User::where('email', $invitation->email)->first();
 
-        if (!$user) return $this->successResponse(['email' => $invitation->email, 'token' => $token], 'Please register to accept the invitation');
+        if (!$user) return $this->successResponse(['email' => $invitation->email, 'token' => $token], 'Please register to accept the invitation',422);
         
         if ($invitation->project_id) {
             $role = $invitation->role ?? 'viewer';
             $user->projects()->attach($invitation->project_id, ['role' => $role]);
         } elseif ($invitation->task_id) {
-            Task::find($invitation->task_id)->update(['user_id' => $user->id]);
+            Task::find($invitation->task_id)->assignees()->attach($user->id);
         }
 
         $invitation->update(['status' => 'accepted']);
 
-        // return redirect()->route('dashboard')->with('success', 'You have joined the project/task!');
         return $this->successResponse([], 'You have joined the project/task!');
+    }
+
+    public function Demo()
+    {
+        $data = [
+            [
+                'name' => 'John Doe',
+                'image' => 'https://api.dicebear.com/9.x/personas/svg',
+                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.',
+            ],
+            [
+                'name' => 'Jane Doe',
+                'image' => 'https://api.dicebear.com/9.x/personas/svg',
+                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.',
+            ],
+            [
+                'name' => 'John Doe',
+                'image' => 'https://api.dicebear.com/9.x/personas/svg',
+                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.',
+            ],
+            [
+                'name' => 'Jane Doe',
+                'image' => 'https://api.dicebear.com/9.x/personas/svg?KO',
+                'description' => 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui. Nulla nec purus feugiat, molestie ipsum et, consequat nibh. Etiam non elit dui.',
+            ],
+           
+        ];
+       
+        return $this->successResponse($data, 'Demo data fetched successfully',200);
     }
 
 }

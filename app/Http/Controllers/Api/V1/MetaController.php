@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\{Task, TaskMeta, Project};
+use App\Rules\UniqueProjectEntry;
 
 class MetaController extends Controller
 {
@@ -33,7 +34,7 @@ class MetaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'project_id' => 'required|exists:projects,uuid',
+            'project_id' => ['required', 'exists:projects,uuid'],
             'type' => 'required',
             'key' => 'required',
             'value' => 'nullable',
@@ -42,7 +43,7 @@ class MetaController extends Controller
         $inputs = $request->all();
         $inputs['project_id'] = Project::where('uuid', $inputs['project_id'])->first()->id;
         $inputs['user_id'] = auth()->id();
-        $taskMeta = TaskMeta::create($inputs);
+        $taskMeta = TaskMeta::updateOrCreate(['project_id' => $inputs['project_id'], 'type' => $inputs['type'], 'key' => $inputs['key']], $inputs);
         return $this->successResponse($taskMeta, 'Task meta created successfully');
     }
 

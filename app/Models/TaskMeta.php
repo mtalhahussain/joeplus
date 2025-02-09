@@ -11,6 +11,10 @@ class TaskMeta extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'value' => 'array'
+    ];
+
     static function boot()
     {
         parent::boot();
@@ -28,5 +32,15 @@ class TaskMeta extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class, 'project_id');
+    }
+
+    public function values()
+    {
+        return $this->hasMany(MetaValue::class, 'meta_id');
     }
 }

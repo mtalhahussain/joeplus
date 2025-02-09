@@ -54,4 +54,9 @@ class Task extends Model
     {
         return $this->hasMany(SubTask::class);
     }
+
+    public function meta()
+    {
+        return $this->hasMany(TaskMeta::class, 'task_id');
+    }
 }
