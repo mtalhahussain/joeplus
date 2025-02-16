@@ -49,6 +49,7 @@ class ProjectExport implements FromCollection, WithHeadings, WithMapping
     public function map($project): array
     {
         $rows = [];
+        
         foreach ($project->tasks as $task) {
             $rows[] = [
                 $task->uuid,
