@@ -11,7 +11,8 @@ use App\Http\Controllers\Api\V1\{
     SubTaskConroller,
     CompanyController,
     MetaController,
-    InviteController
+    InviteController,
+    ExportImportController
 };
 
 
@@ -29,6 +30,7 @@ Route::group(['prefix' => 'v1'] , function(){
     Route::post('verify-otp', [AuthController::class, 'verifyOtpCode']);
 
     Route::get('demo', [InviteController::class, 'Demo']);
+    Route::get('export-project/{uuid}', [ExportImportController::class, 'exportExcel']);
 
     Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
@@ -47,7 +49,7 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::post('notifications/mark-read', [UserController::class, 'markRead']);
         Route::post('notifications/mark-read-all', [UserController::class, 'markReadAl']);
         Route::post('/invite', [InviteController::class, 'inviteUser']);
-        
+
         Route::apiResources([
             'users' => UserController::class,
             'company' => CompanyController::class,

@@ -37,15 +37,13 @@ return new class extends Migration
         Schema::table('tasks', function (Blueprint $table) {
         
             if(!Schema::hasColumn('tasks', 'priority')) $table->string('priority',99)->nullable()->after('status');
-            if(!Schema::hasColumn('tasks', 'priority')) $table->string('priority',99)->nullable()->after('status');
             if (Schema::hasColumn('tasks', 'due_date')) {
                 \DB::statement('ALTER TABLE tasks CHANGE COLUMN `due_date` `due_start` DATE NULL AFTER `description`');
             }
             if(!Schema::hasColumn('tasks', 'due_start')) $table->date('due_start')->nullable()->after('description');
             if(!Schema::hasColumn('tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
             if(!Schema::hasColumn('tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
-            if(!Schema::hasColumn('tasks', 'user_id')) $table->unsignedBigInteger('user_id')->after('uuid');
-            $table->unsignedBigInteger('user_id')->nullable()->change();
+            if(!Schema::hasColumn('tasks', 'user_id')) $table->unsignedBigInteger('user_id')->nullable()->after('uuid');
 
         });
         Schema::table('sub_tasks', function (Blueprint $table) {
@@ -54,24 +52,28 @@ return new class extends Migration
             if(!Schema::hasColumn('sub_tasks', 'due_start')) $table->date('due_start')->nullable()->after('description');
             if(!Schema::hasColumn('sub_tasks', 'due_end')) $table->date('due_end')->nullable()->after('due_start');
             if(!Schema::hasColumn('sub_tasks', 'is_completed')) $table->boolean('is_completed')->default(0)->after('priority');
-            if(!Schema::hasColumn('sub_tasks', 'user_id')) $table->unsignedBigInteger('user_id')->after('uuid');
-            $table->unsignedBigInteger('user_id')->nullable()->change();
+            if(!Schema::hasColumn('sub_tasks', 'user_id')) $table->unsignedBigInteger('user_id')->nullable()->after('uuid');
 
         });
+        if (Schema::hasTable('task_metas')){
 
-        Schema::table('task_metas', function (Blueprint $table) {
-        
-            if(!Schema::hasColumn('task_metas', 'project_id')) $table->unsignedBigInteger('project_id')->after('task_id');
-            $table->unsignedBigInteger('task_id')->nullable()->change();
-            $table->string('value',255)->nullable()->change();
+            Schema::table('task_metas', function (Blueprint $table) {
+            
+                if(!Schema::hasColumn('task_metas', 'project_id')) $table->unsignedBigInteger('project_id')->after('task_id');
+                $table->unsignedBigInteger('task_id')->nullable()->change();
+                $table->string('value',255)->nullable()->change();
+    
+            });
+        }
 
-        });
+        if (Schema::hasTable('meta_values')){
 
-        Schema::table('meta_values', function (Blueprint $table) {
-
-            if(!Schema::hasColumn('meta_values', 'uuid')) $table->string('uuid', 36)->after('id');
-           
-        });
+            Schema::table('meta_values', function (Blueprint $table) {
+    
+                if(!Schema::hasColumn('meta_values', 'uuid')) $table->string('uuid', 36)->after('id');
+               
+            });
+        }
         
     }
 
