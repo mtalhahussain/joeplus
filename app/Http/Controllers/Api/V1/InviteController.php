@@ -14,27 +14,48 @@ class InviteController extends Controller
     public function inviteUser(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
             'project_id' => 'nullable|exists:projects,id',
             'task_id' => 'nullable|exists:tasks,id',
+            'email' => 'required_without:data|email',
+            'role' => 'nullable',
+            'data.*' => 'nullable|array',
         ]);
 
         $token = Str::random(32);
-        
-        $invitation = Invitation::create([
-            'email' => $request->email,
-            'project_id' => $request->project_id,
-            'task_id' => $request->task_id,
-            'token' => $token,
-            'status' => 'pending',
-        ]);
+        if(count($request->data) > 0){
 
-        Mail::to($request->email)->send(new InviteMail($invitation));
+            foreach ($request->data as $key => $data) {
+
+                $invitation = Invitation::create([
+                    'email' => $data['email'],
+                    'project_id' => $data['project_id'] ?? null,
+                    'task_id' => $data['task_id'] ?? null,
+                    'token' => $token,
+                    'role' => $data['role'] ?? null,
+                    'status' => 'pending',
+                ]);
+        
+                Mail::to($data['email'])->send(new InviteMail($invitation));
+            }
+
+        }else{
+
+            $invitation = Invitation::create([
+                'email' => $request->email,
+                'project_id' => $request->project_id,
+                'task_id' => $request->task_id,
+                'token' => $token,
+                'role' => $request->role,
+                'status' => 'pending',
+            ]);
+    
+            Mail::to($request->email)->send(new InviteMail($invitation));
+        }
 
         return $this->successResponse([], 'Invitation sent successfully');
     }
 
-
+ 
     public function acceptInvite($token)
     {
         $invitation = Invitation::where('token', $token)->first();
