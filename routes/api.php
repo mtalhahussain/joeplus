@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\V1\{
     CompanyController,
     MetaController,
     InviteController,
+    DashboardController,
     ExportImportController
 };
 
@@ -59,7 +60,7 @@ Route::group(['prefix' => 'v1'] , function(){
             'comments' => CommentController::class,
             'sub-tasks' => SubTaskConroller::class,
             'meta' => MetaController::class,
-            
+            'dashboard' => DashboardController::class,
         ]);
 
     });
