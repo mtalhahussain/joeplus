@@ -11,18 +11,21 @@ class DashboardController extends Controller
     public function index(Request $request) {
 
         if(auth()->user()->role !== 'admin'){
-    
-            $taskQuery = auth()->user()->tasks();
+
+            $taskQuery = auth()->user()->tasks()->where('is_completed', true);
             $projectQuery = auth()->user()->projects();
             $userQuery = auth()->user()->companyUsers();
             
             if(isset($request->task_start_date) && !isset($request->task_end_date)){
                 $start_date = Carbon::parse($request->task_start_date)->toDateString();
-                $taskQuery->whereDate('due_start','=',$start_date);
+                $taskQuery->whereate('created_at',$start_date);
+                // $taskQuery->whereDate('due_start','=',$start_date);
             }elseif(isset($request->task_start_date) && isset($request->task_end_date)){
                 $start_date = Carbon::parse($request->task_start_date)->toDateString();
                 $end_date = Carbon::parse($request->task_end_date)->toDateString();
-                $taskQuery->whereDate('due_start','>=',$start_date)->whereDate('due_end','<=',$end_date);
+                // $taskQuery->whereDate('due_start','>=',$start_date)->whereDate('due_end','<=',$end_date);
+                $taskQuery->whereBetween('created_at',[$start_date,$end_date]);
+                
             }
     
             if(isset($request->user_start_date) && !isset($request->user_end_date)){
@@ -49,12 +52,9 @@ class DashboardController extends Controller
                 ->orderBy('due_end', 'asc')
                 ->get();
     
-            $completed_task_count = auth()->user()->tasks()
-                ->where('is_completed', true)
-                ->count();
-    
+           
             $data = [
-                'completed_count' => $completed_task_count,
+                'completed_count' => $taskQuery->count(),
                 'projects_count' => $projectQuery->count(),
                 'users' => $userQuery->count(),
                 'tasks' => [
