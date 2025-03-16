@@ -13,16 +13,16 @@ use App\Http\Controllers\Api\V1\{
     MetaController,
     InviteController,
     DashboardController,
-    ExportImportController
+    PortfolioController,
+    FavoriteController,
+    ExportImportController,
 };
-
 
 Route::group(['prefix' => 'v1'] , function(){
 
     Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
         return $request->user();
     });
-    
 
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
@@ -32,12 +32,11 @@ Route::group(['prefix' => 'v1'] , function(){
 
     Route::get('demo', [InviteController::class, 'Demo']);
     Route::get('export-project/{uuid}', [ExportImportController::class, 'exportExcel']);
-
     Route::post('forgot-password', [AuthController::class, 'sendResetLink']);
     Route::post('reset-password', [AuthController::class, 'resetPassword']);
     Route::get('/accept-invite/{token}', [InviteController::class, 'acceptInvite']);
 
-    Route::group(['middleware' => 'auth:sanctum'], function(){
+    Route::group(['middleware' => 'auth:sanctum'], function() {
 
         Route::post('logout', [AuthController::class, 'logout']);
         Route::get('me', [AuthController::class, 'me']);
@@ -50,7 +49,10 @@ Route::group(['prefix' => 'v1'] , function(){
         Route::post('notifications/mark-read', [UserController::class, 'markRead']);
         Route::post('notifications/mark-read-all', [UserController::class, 'markReadAl']);
         Route::post('/invite', [InviteController::class, 'inviteUser']);
-
+        Route::post('/portfolio/assign-project', [PortfolioController::class, 'assignProject']);
+        Route::post('/portfolio/assign-remove', [PortfolioController::class, 'assignRemove']);
+        Route::post('import-project', [ExportImportController::class, 'importProject']);
+        
         Route::apiResources([
             'users' => UserController::class,
             'company' => CompanyController::class,
@@ -61,6 +63,8 @@ Route::group(['prefix' => 'v1'] , function(){
             'sub-tasks' => SubTaskConroller::class,
             'meta' => MetaController::class,
             'dashboard' => DashboardController::class,
+            'portfolios' => PortfolioController::class,
+            'favorites' => FavoriteController::class,
         ]);
 
     });

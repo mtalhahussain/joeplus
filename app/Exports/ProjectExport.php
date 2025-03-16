@@ -39,9 +39,9 @@ class ProjectExport implements FromCollection, WithHeadings, WithMapping
             'Due Date',
             'Notes',
             'Projects',
-            // 'Parent task',
-            // 'Blocked By (Dependencies)',
-            // 'Blocking (Dependencies)',
+            'Parent task',
+            'Blocked By (Dependencies)',
+            'Blocking (Dependencies)',
             'Priority'
         ];
     }
@@ -62,7 +62,7 @@ class ProjectExport implements FromCollection, WithHeadings, WithMapping
                 implode(', ', $task->assignees->pluck('email')->toArray()),
                 $task->due_start ?? '',
                 $task->due_end ?? '',
-                // implode(', ', $task->tags->pluck('name')->toArray()),
+                implode(', ', $task->tags->pluck('name')->toArray()),
                 $task->description ?? '',
                 $project->name,
                 // implode(', ', $task->blockedBy->pluck('name')->toArray()),

@@ -83,4 +83,19 @@ class User extends Authenticatable
     {
         return $this->hasMany(Invitation::class);
     }
+    
+    public function portfolios()
+    {
+        return $this->hasMany(Portfolio::class);
+    }
+
+    public function favoriteProjects()
+    {
+        return $this->belongsToMany(Project::class, 'favorites', 'user_id', 'project_id');
+    }
+
+    public function favoritePortfolios()
+    {
+        return $this->belongsToMany(Portfolio::class, 'favorites', 'user_id', 'portfolio_id');
+    }
 }

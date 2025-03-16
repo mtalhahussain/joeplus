@@ -40,4 +40,14 @@ class Project extends Model
     {
         return $this->hasMany(TaskMeta::class, 'project_id', 'id');
     }
+
+    public function portfolios()
+    {
+        return $this->belongsToMany(Portfolio::class, 'portfolio_project');
+    }
+
+    public function favorites()
+    {
+        return $this->belongsToMany(User::class, 'favorites', 'project_id', 'user_id');
+    }
 }

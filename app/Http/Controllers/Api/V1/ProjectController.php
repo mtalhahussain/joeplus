@@ -25,6 +25,9 @@ class ProjectController extends Controller
                 $query->select('users.id', 'users.name', 'users.avatar','users.email')
                       ->addSelect('project_users.role as project_role');
             },'tasks.meta'])->paginate($perPage);
+
+            if(isset($inputs['portfolio'])) $projects = auth()->user()->projects()->get();
+            
         }
         return $this->successResponse($projects, 'Projects fetched successfully');
     }
